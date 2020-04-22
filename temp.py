@@ -1,7 +1,9 @@
 import gym
 import time
 import keyboard
+from PIL import Image
 # import tensorflow as tf
+# import numpy as np
 
 
 ACTION = {
@@ -31,6 +33,9 @@ class Play():
             # break
         self.close()
     
+    def close(self):
+        self.env.close()
+
     def automatic(self):
         observation = self.env.reset()
         done = False
@@ -44,6 +49,8 @@ class Play():
             # print(type(observation))
             # done = True
 
+
+            # self.print_image(observation)
             # time.sleep(0.1)
 
     def manual(self):
@@ -69,9 +76,18 @@ class Play():
         else:
             return ACTION["NOOP"]
 
-    def close(self):
-        self.env.close()
+
+    def print_image(self, observation):
+        # print(self.env.action_space)
+        # print(self.env.observation_space)
+        # print(self.env.observation_space.high)
+        # print(self.env.observation_space.low)         
+        w, h = len(observation), len(observation[0])
+        data = observation
+        img = Image.fromarray(data, 'RGB')
+        img.save('created_screen.png')
+        img.show()
 
 
-play = Play()
-play.go(50, "Automatic")
+class DeepLearning():
+    pass
