@@ -19,11 +19,11 @@ ACTION = {
 class Play():
     env = gym.make('SpaceInvaders-v0')
 
-    def go(self, match, run_choice):
+    def go(self, match, run_mode):
         for m in range(match):
-            if run_choice == 1:
+            if run_mode == "Automatic":
                 self.automatic()
-            elif run_choice == 2:
+            else:
                 self.manual()
         self.close()
     
@@ -38,6 +38,7 @@ class Play():
             action = self.env.action_space.sample()
             observation, reward, done, info = self.env.step(action)
             # self.print_image(observation)
+            # time.sleep(0.1)
 
     def manual(self):
         observation = self.env.reset()
@@ -62,13 +63,17 @@ class Play():
         else:
             return ACTION["NOOP"]
 
+
     def print_image(self, observation):
+        # print(self.env.action_space)
+        # print(self.env.observation_space)
+        # print(self.env.observation_space.high)
+        # print(self.env.observation_space.low)         
         w, h = len(observation), len(observation[0])
         data = observation
         img = Image.fromarray(data, 'RGB')
         img.save('created_screen.png')
         img.show()
-        exit()
 
 
 class DeepLearning():
