@@ -1,6 +1,7 @@
 import gym
 import time
 import keyboard
+# import tensorflow as tf
 
 
 ACTION = {
@@ -12,12 +13,22 @@ ACTION = {
     "LFIRE":        ["d", 5],
 }
 
+
 class Play():
     env = gym.make('SpaceInvaders-v0')
 
-    def go(self, match):
+    def go(self, match, run_mode):
+        # print(self.env.action_space)
+        # print(self.env.observation_space)
+        # print(self.env.observation_space.high)
+        # print(self.env.observation_space.low)
+
         for m in range(match):
-            self.manual()
+            if run_mode == "Automatic":
+                self.automatic()
+            else:
+                self.manual()
+            # break
         self.close()
     
     def automatic(self):
@@ -27,6 +38,12 @@ class Play():
             self.env.render()
             action = self.env.action_space.sample()
             observation, reward, done, info = self.env.step(action)
+
+            # f = open("observation.txt", "w")
+            # f.write(str(observation))
+            # print(type(observation))
+            # done = True
+
             # time.sleep(0.1)
 
     def manual(self):
@@ -55,5 +72,6 @@ class Play():
     def close(self):
         self.env.close()
 
+
 play = Play()
-play.go(50)
+play.go(50, "Automatic")
