@@ -20,10 +20,10 @@ class Play():
     env = gym.make('SpaceInvaders-v0')
 
     def go(self, match, run_mode):
-        # print(self.env.action_space)
-        # print(self.env.observation_space)
-        # print(self.env.observation_space.high)
-        # print(self.env.observation_space.low)
+        print(self.env.action_space)
+        print(self.env.observation_space)
+        print(self.env.observation_space.high)
+        print(self.env.observation_space.low)
 
         for m in range(match):
             if run_mode == "Automatic":

@@ -1,3 +1,4 @@
+# from space_invaders import Play
 from space_invaders import Play
 
 # Escolher se a nave devera ser controlada manualmente, pelo proprio ambiente do gym ou por uma IA
@@ -12,5 +13,5 @@ MATCHES = 50
 
 
 play = Play()
-play.go(MATCHES, RUN_CHOICE["AUTOMATIC"])
+play.go(MATCHES, RUN_CHOICE["DEEPLEARNING"])
 exit()
