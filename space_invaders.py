@@ -3,23 +3,43 @@ import time
 import keyboard
 import numpy as np
 import tensorflow as tf
+import tensorflow.keras.layers as layers
 
 import gym
 
 def ndarray2img(ndarray, colormap):
     import matplotlib.pyplot as plt
-    plt.imshow(ndarray, cmap = plt.get_cmap(colormap))
+    plt.imshow(ndarray, cmap=plt.get_cmap(colormap))
     plt.show()
-    exit()
+    # exit()
 
 class DeepLearning():
+    ACTIONS = [1, 2, 3]
+    model = tf.keras.models.Sequential()
+    y_min, y_max, x_min, x_max  = 25, 195, 20, 140
+    input_shape = (y_max-y_min, x_max-x_min, 1)
 
-    def learning(self, observation, reward):
-        gray_scale = self.rgb2gray(observation)
-        ndarray2img(gray_scale, 'gray')
+    def __init__(self):
+        self.model.add(layers.Flatten())
+        self.model.add(layers.Dense(512, activation="tanh", bias_initializer="random_uniform"))
+        self.model.add(layers.Dense(self.ACTIONS, activation="softmax"))
+        self.model.compile(loss="mean_squared_error",
+                           optimizer=RMSprop(lr=0.00025,
+                                             rho=0.95,
+                                             epsilon=0.01),
+                           metrics=["accuracy"])
 
-    def rgb2gray(self, observation):
-        return np.mean(observation, axis=2)
+    def train(self, observation, reward):
+        data = self.image_processing(observation)
+        ndarray2img(data, 'gray')
+
+        # self.model.fit(data, self.ACTIONS,  batch_size=32)
+        # self.model.evaluate()
+        # self.model.predict()
+
+    def image_processing(self, ndarray):
+        # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
+        return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2)
 
 class Play():
     ACTION = {
@@ -32,7 +52,7 @@ class Play():
     }
 
     env = gym.make('SpaceInvaders-v0')
-    deep = DeepLearning()
+    deeplearning = DeepLearning()
 
     def go(self, match, run_choice):
         for m in range(match):
@@ -41,7 +61,7 @@ class Play():
             elif run_choice == 2:
                 self.run_manual()
             elif run_choice == 3:
-                self.run_deep_learning()
+                self.run_neural_network()
         self.env.close()
 
     def run_automatic(self):
@@ -62,13 +82,14 @@ class Play():
             observation, reward, done, info = self.env.step(action)
             time.sleep(0.1)
     
-    def run_deep_learning(self):
+    def run_neural_network(self):
         observation = self.env.reset()
         reward = 0
         done = False
         while (not done):
             self.env.render()
-            action = self.deep.learning(observation, reward)
+            self.deeplearning.train(observation, reward)
+            action = self.env.action_space.sample()
             observation, reward, done, info = self.env.step(action)
 
     def controller(self):
