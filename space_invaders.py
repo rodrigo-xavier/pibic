@@ -19,23 +19,23 @@ class DeepLearning():
     y_min, y_max, x_min, x_max  = 25, 195, 20, 140
     input_shape = (y_max-y_min, x_max-x_min, 1)
 
-    def __init__(self):
-        self.model.add(layers.Flatten())
-        self.model.add(layers.Dense(512, activation="tanh", bias_initializer="random_uniform"))
-        self.model.add(layers.Dense(self.ACTIONS, activation="softmax"))
-        self.model.compile(loss="mean_squared_error",
-                           optimizer=RMSprop(lr=0.00025,
-                                             rho=0.95,
-                                             epsilon=0.01),
-                           metrics=["accuracy"])
+    # def __init__(self):
+    #     self.model.add(layers.Flatten())
+    #     self.model.add(layers.Dense(250, activation="tanh", bias_initializer="random_uniform"))
+    #     self.model.add(layers.Dense(self.ACTIONS, activation="softmax"))
+    #     self.model.compile(loss="mean_squared_error",
+    #                        optimizer=RMSprop(lr=0.00025,
+    #                                          rho=0.95,
+    #                                          epsilon=0.01),
+    #                        metrics=["accuracy"])
 
-    def train(self, observation, reward):
-        data = self.image_processing(observation)
-        ndarray2img(data, 'gray')
+    # def train(self, observation, reward):
+    #     data = self.image_processing(observation)
+    #     ndarray2img(data, 'gray')
 
-        # self.model.fit(data, self.ACTIONS,  batch_size=32)
-        # self.model.evaluate()
-        # self.model.predict()
+    #     self.model.fit(data, self.ACTIONS,  batch_size=32)
+    #     self.model.evaluate()
+    #     self.model.predict()
 
     def image_processing(self, ndarray):
         # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
