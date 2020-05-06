@@ -4,42 +4,90 @@ import keyboard
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as layers
+from utils import ndarray2img
+import matplotlib.pyplot as plt
 
 import gym
 
-def ndarray2img(ndarray, colormap):
-    import matplotlib.pyplot as plt
-    plt.imshow(ndarray, cmap=plt.get_cmap(colormap))
-    plt.show()
-    # exit()
 
 class DeepLearning():
-    ACTIONS = [1, 2, 3]
+    ACTIONS = [1, 2, 3] 
     model = tf.keras.models.Sequential()
     y_min, y_max, x_min, x_max  = 25, 195, 20, 140
     input_shape = (y_max-y_min, x_max-x_min, 1)
 
-    # def __init__(self):
-    #     self.model.add(layers.Flatten())
-    #     self.model.add(layers.Dense(250, activation="tanh", bias_initializer="random_uniform"))
-    #     self.model.add(layers.Dense(self.ACTIONS, activation="softmax"))
-    #     self.model.compile(loss="mean_squared_error",
-    #                        optimizer=RMSprop(lr=0.00025,
-    #                                          rho=0.95,
-    #                                          epsilon=0.01),
-    #                        metrics=["accuracy"])
+    def __init__(self):
+        self.model.add(
+            layers.Dense(
+                units=174, # ((y_max-y_min)*(x_max-x_min)*255)^(1/3) = 174
+                input_shape=self.input_shape,
+                kernel_initializer='random_uniform', 
+                bias_initializer='zeros'
+            )
+        )
+        self.model.add(layers.Flatten())
+        self.model.add(
+            layers.Dense(
+                units=174,
+                activation='tanh'
+            )
+        )
+        self.model.add(
+            layers.Dense(
+                units=3,
+                activation='softmax'
+            )
+        )
+        self.model.compile(
+            loss='binary_crossentropy',
+            optimizer='adam',
+            metrics=['accuracy']
+        )
 
-    # def train(self, observation, reward):
-    #     data = self.image_processing(observation)
-    #     ndarray2img(data, 'gray')
+    def train(self, observation, reward):
+        data = self.image_processing(observation)
+        # ndarray2img(data, 'gray')
 
-    #     self.model.fit(data, self.ACTIONS,  batch_size=32)
-    #     self.model.evaluate()
-    #     self.model.predict()
+        self.history = self.model.fit(
+                            x=data, 
+                            y=self.ACTIONS, 
+                            batch_size=32, 
+                            epochs=50,
+                            verbose=1,
+                        )
+        plot_history()
+
+        # return self.history.history[]
+
+        # self.model.evaluate()
+        # self.model.predict()
 
     def image_processing(self, ndarray):
         # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2)
+    
+    def plot_history(self):
+        # Plot training & validation accuracy values
+        plt.plot(self.history.history['acc'])
+        plt.plot(self.history.history['val_acc'])
+        plt.title('Model accuracy')
+        plt.ylabel('Accuracy')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.show()
+
+        # Plot training & validation loss values
+        plt.plot(self.history.history['loss'])
+        plt.plot(self.history.history['val_loss'])
+        plt.title('Model loss')
+        plt.ylabel('Loss')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.show()
+    
+    def store_model_graph(self):
+        from keras.utils import plot_model
+        plot_model(self.model, to_file='model.png')
 
 class Play():
     ACTION = {
