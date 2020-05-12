@@ -2,7 +2,7 @@
 from space_invaders import PlayLearning, PlayAutomatic, PlayManual
 
 # Escolher o numero de partidas que o jogo devera ter
-MATCHES = 3
+MATCHES = 1
 
 
 

@@ -9,13 +9,18 @@ def show_array_as_img(ndarray, colormap):
     plt.show()
     # exit()
 
-def store_array_and_img(action, ndarray, counter):
-    n = np.zeros((ndarray.shape[-1],), dtype=int)   # Gera uma linha de zeros do tamanho do eixo x de ndarray
+def store_csv(action, observation, counter):
+    n = np.zeros((observation.shape[-1],), dtype=int)   # Gera uma linha de zeros do tamanho do eixo x de observation
     n[0] = action
-    array = np.append([n], ndarray, axis=0)         # Concatena o array de actions com a imagem
+    array = np.append([n], observation, axis=0)         # Concatena o array de actions com a imagem
 
     path = PATH + "/array/" + str(counter) + ".csv"
     np.savetxt(path, array, fmt="%d", delimiter=',')
+
+def store_png(action, observation, counter):
+    n = np.zeros((observation.shape[-1],), dtype=int)   # Gera uma linha de zeros do tamanho do eixo x de observation
+    n[0] = action
+    array = np.append([n], observation, axis=0)         # Concatena o array de actions com a imagem
 
     img = Image.fromarray(array)
     img = img.convert("L")
@@ -23,6 +28,12 @@ def store_array_and_img(action, ndarray, counter):
     path = PATH + "/img/" + str(counter) + ".png"
     img.save(path)
 
+def store_npz(observation_list, action_list):
+    path = PATH + "/npz/" + "observation_list.npz"
+    np.savez_compressed(path, observation_list)
+
+    path = PATH + "/npz/" + "action_list.npz"
+    np.savez_compressed(path, action_list)
 
 def print_all_array(array):
     np.set_printoptions(threshold=np.inf)
