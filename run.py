@@ -6,9 +6,9 @@ MATCHES = 1
 
 
 
-# play = PlayLearning()
+play = PlayLearning()
 # play = PlayAutomatic()
-play = PlayManual()
+# play = PlayManual()
 
 play.run(MATCHES)
 # play.run_storing(MATCHES)

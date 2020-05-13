@@ -16,12 +16,14 @@ PATH = "/home/cyber/GitHub/pibic/pibic/database"
 class DeepLearning():
     model = tf.keras.models.Sequential()
     
+    EPSILON = 0.1
     ACTIONS = [0, 1, 2, 3]
     y_min, y_max, x_min, x_max  = 25, 195, 20, 140
-    input_shape = (y_max-y_min, x_max-x_min, 1)
+    input_shape = (y_max-y_min, x_max-x_min)
+    # y = 170, x = 120 | x*y = 20400
 
     # Quantidade de Neuronios em cada camada
-    n_input_layer = (y_max-y_min)*(x_max-x_min+1) # +1 Para considerar a entrada de actions
+    n_input_layer = (y_max-y_min)*(x_max-x_min)
     n_output_layer = len(ACTIONS)
     n_hidden_layer = round(math.sqrt((n_input_layer*n_output_layer)))
 
@@ -50,34 +52,63 @@ class DeepLearning():
             optimizer='adam',
             metrics=['accuracy']
         )
-        print(self.model.summary())
-        self.load_data()
-        self.train()
     
     def load_data(self):
-        self.observation_list = np.load(PATH + '/npz/observation_list.npz')
-        self.action_list = np.load(PATH + '/npz/action_list.npz')
+        load_observation_list = np.load(PATH + '/npz/observation_list.npz')
+        load_action_list = np.load(PATH + '/npz/action_list.npz')
+
+        # print(type(load_observation_list))
+        # print(type(load_action_list))
+        # print(type(load_observation_list.f.arr_0))
+        # print(load_observation_list.f.arr_0.size)
+        # print(load_observation_list.f.arr_0)
+
+        self.observation_list = load_observation_list.f.arr_0
+        self.action_list = load_action_list.f.arr_0
+
 
     def train(self):
-        self.model.fit(self.observation_list, self.action_list, epochs=150, batch_size=10)
-        self.plot_history()
+        print(self.model.summary())
+        self.load_data()
+        history = self.model.fit(self.observation_list, self.action_list, epochs=10, batch_size=10)
+        # self.plot_history(history)
 
-    def predict(self, observation):
-        processed_observation = gray_crop(observation)
+        # Evaluate the model on the test data using `evaluate`
+        print('\n# Evaluate on test data')
+        results = self.model.evaluate(self.observation_list, self.action_list, batch_size=32)
+        print('test loss, test acc:', results)
 
-        action = self.model.predict(x=processed_observation)
-        print(action)
-        # self.model.evaluate()
-        return action
+
+    def predict(self, observation, reward):
+        processed_observation = self.gray_crop(observation)
+        tridimensional_data = np.expand_dims(processed_observation, axis=0)
+
+        actions = self.model.predict(x=tridimensional_data)
+        # print(actions)
+
+        selected_action = np.argmax(actions)
+        selected_action = self.optional_policy(selected_action)
+
+        print(selected_action)
+        # print(actions[0, selected_action])
+
+        return selected_action
+
+    def optional_policy(self, randomic_action):
+        rand_val = np.random.random()
+        if rand_val < self.EPSILON:
+            randomic_action = np.random.randint(0, len(self.ACTIONS))
+        
+        return randomic_action
+        # return opt_policy, actions[0, opt_policy]
 
     def gray_crop(self, ndarray):
         # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2)
 
-    def plot_history(self):
+    def plot_history(self, history):
         # Plot training & validation accuracy values
-        plt.plot(self.model.history['acc'])
-        plt.plot(self.model.history['val_acc'])
+        plt.plot(history.history['accuracy'])
         plt.title('Model accuracy')
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
@@ -85,29 +116,12 @@ class DeepLearning():
         plt.show()
 
         # Plot training & validation loss values
-        plt.plot(self.model.history['loss'])
-        plt.plot(self.model.history['val_loss'])
+        plt.plot(history.history['loss'])
         plt.title('Model loss')
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
         plt.show()
-
-
-    # def train(self, observation, reward):
-    #     data = self.gray_crop(observation)
-    #     # ndarray2img(data, 'gray')
-
-    #     self.history = self.model.fit(
-    #                         x=data,
-    #                         y=self.ACTIONS,
-    #                         batch_size=32,
-    #                         epochs=50,
-    #                         verbose=1,
-    #                     )
-
-    #     self.model.evaluate()
-    #     self.model.predict()
     
     # def store_model_graph(self):
     #     from keras.utils import plot_model
@@ -124,9 +138,10 @@ class PlayLearning():
     # }
 
     env = gym.make("SpaceInvaders-v0")
-    # deeplearning = DeepLearning()
+    deeplearning = DeepLearning()
 
     def run(self, match):
+        self.deeplearning.train()
         for m in range(match):
             self.play()
         self.env.close()
@@ -140,7 +155,6 @@ class PlayLearning():
             self.env.render()
             action = self.deeplearning.predict(observation, reward)
             observation, reward, done, info = self.env.step(action)
-            time.sleep(0.2)
 
 
 class PlayManual():
@@ -155,7 +169,7 @@ class PlayManual():
     y_min, y_max, x_min, x_max  = 25, 195, 20, 140
     observation_list = []
     action_list = []
-    # y = 175, x = 120 | x*y = 21000
+    # y = 170, x = 120 | x*y = 20400
 
     env = gym.make("SpaceInvaders-v0")
 
