@@ -69,9 +69,10 @@ class DeepLearning():
 
     def train(self):
         print(self.model.summary())
+
         self.load_data()
-        history = self.model.fit(self.observation_list, self.action_list, epochs=10, batch_size=10)
-        # self.plot_history(history)
+        history = self.model.fit(self.observation_list, self.action_list, epochs=1, batch_size=10)
+        self.plot_history(history)
 
         # Evaluate the model on the test data using `evaluate`
         print('\n# Evaluate on test data')
@@ -89,7 +90,7 @@ class DeepLearning():
         selected_action = np.argmax(actions)
         selected_action = self.optional_policy(selected_action)
 
-        print(selected_action)
+        # print(selected_action)
         # print(actions[0, selected_action])
 
         return selected_action
@@ -113,6 +114,7 @@ class DeepLearning():
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
+        plt.savefig(PATH + '/plt/accuracy.png')
         plt.show()
 
         # Plot training & validation loss values
@@ -121,6 +123,7 @@ class DeepLearning():
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
+        plt.savefig(PATH + '/plt/loss.png')
         plt.show()
     
     # def store_model_graph(self):
