@@ -71,7 +71,7 @@ print(trainScore)
 
 index = df.index.values
 plt.plot(index,df)
-index = index[0:len(index)-2]
+index = index[0:len(index)-2] # Gambiarra
 plt.plot(index,predicted)
 plt.axvline(df.index[T], c="r")
 plt.show()
