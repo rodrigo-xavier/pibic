@@ -61,7 +61,7 @@ model.add(layers.Dense(1))
 model.compile(loss='mean_squared_error', optimizer='rmsprop')
 model.summary()
 
-model.fit(trainX, trainY, epochs=100, batch_size=16, verbose=2)
+model.fit(trainX, trainY, epochs=200, batch_size=16, verbose=2)
 trainPredict = model.predict(trainX)
 testPredict= model.predict(testX)
 predicted=np.concatenate((trainPredict,testPredict),axis=0)
