@@ -29,3 +29,21 @@ To install and execute this, run the following code:
 > pip install -e ‘.[atari]’
 
 > python3 run.py
+
+
+
+<!-- new method -->
+install venv
+install pyenv
+
+install pyenv libraries
+install tkinter libraries
+
+pyenv install 3.5.9
+pyenv shell 3.5.9
+pip install --upgrade pip
+
+create virtualenv
+activate virtualenv
+
+pip install -r requirements.txt

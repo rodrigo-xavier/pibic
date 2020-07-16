@@ -23,7 +23,8 @@ google-colab==1.0.0
 google-pasta==0.2.0
 googleapis-common-protos==1.51.0
 grpcio==1.28.1
--e git+https://github.com/openai/gym@f2c9793eb762c26bb0b5524f5f69cdd536688f2e#egg=gym
+gym==0.17.2
+# -e git+https://github.com/openai/gym@f2c9793eb762c26bb0b5524f5f69cdd536688f2e#egg=gym
 h5py==2.10.0
 httplib2==0.18.1
 idna==2.8

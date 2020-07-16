@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-PATH = "/home/cyber/GitHub/pibic/pibic/database"
+PATH = "/home/cyber/GitHub/pibic/pibic/database/pygame"
 
 def show_array_as_img(ndarray, colormap):
     plt.imshow(ndarray, cmap=plt.get_cmap(colormap))
@@ -34,6 +34,10 @@ def store_npz(observation_list, action_list):
 
     path = PATH + "/npz/" + "action_list.npz"
     np.savez_compressed(path, action_list)
+
+def png2npz(img):
+    path = PATH + "/npz/" + "img.npz"
+    np.savez_compressed(path, img)
 
 def print_all_array(array):
     np.set_printoptions(threshold=np.inf)
