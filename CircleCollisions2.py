@@ -116,7 +116,7 @@ def GetInput():
 
 
 def main():
-    while True:
+    for i in range(0,100):
         GetInput()
         Move()
         CollisionDetect()

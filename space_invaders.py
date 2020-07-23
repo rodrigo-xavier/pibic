@@ -254,4 +254,5 @@ class PlayAutomatic():
             self.env.render()
             action = self.env.action_space.sample()
             observation, reward, done, info = self.env.step(action)
+            print(type(observation))
             # ndarray_to_img(observation)

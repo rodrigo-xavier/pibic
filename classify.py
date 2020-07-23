@@ -4,108 +4,119 @@ import keyboard
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as layers
-from utils import show_array_as_img, store_csv, store_png, store_npz, arguments
+from tensorflow.keras import Input
+from CircleCollisions2 import main
 import matplotlib.pyplot as plt
-
+from utils import show_array_as_img
+import cv2
 import gym
 import math
+import os
 
 
-PATH = "/home/cyber/GitHub/pibic/pibic/database/pygame/"
+IMG_SIZE = 256
+PNG_PATH = "database/pygame/img/"
+NPZ_PATH = "database/pygame/npz/"
+PATH = "/home/cyber/GitHub/pibic/pibic/database/pygame"
+
+class PrepareData():
+    img_size = IMG_SIZE
+    png_path = PNG_PATH
+    npz_path = NPZ_PATH + "pygame.npz"
+    group_of_images = []
+
+    def get_preprocessed_img(self, img_path):
+        import cv2
+        img = cv2.imread(img_path, 0) # Convert to grayscale
+        img = cv2.resize(img, (self.img_size, self.img_size))
+        img = img.astype('float32')
+        img /= 255       
+        return img
+
+    def img2npz(self):
+        for f in os.listdir(self.png_path):
+            if f.find(".png") != -1:
+                img = self.get_preprocessed_img("{}/{}".format(self.png_path, f))
+                # show_array_as_img(img, 'gray')
+                self.group_of_images.append(img)
+
+        np.savez_compressed(self.npz_path, self.group_of_images)
+
 
 class DeepLearning():
     model = tf.keras.models.Sequential()
     
-    EPSILON = 0.1
-    ACTIONS = [0, 1, 2, 3]
-    y_min, y_max, x_min, x_max  = 25, 195, 20, 140
-    input_shape = (y_max-y_min, x_max-x_min)
-    # y = 170, x = 120 | x*y = 20400
+    ACTIONS = ["circulo", "quadrado"]
 
-    # Quantidade de Neuronios em cada camada
-    n_input_layer = (y_max-y_min)*(x_max-x_min)
-    n_output_layer = len(ACTIONS)
-    n_hidden_layer = round(math.sqrt((n_input_layer*n_output_layer)))
+    input_shape = (IMG_SIZE, IMG_SIZE)
+    dim_input = (IMG_SIZE)*(IMG_SIZE)
+    dim_output = len(ACTIONS)
+    nb_units = 5
+    # n_hidden_layer = round(math.sqrt((dim_input*dim_output)))
 
     def __init__(self):
+        # self.model.add(
+        #     layers.Flatten(
+        #         input_shape=self.input_shape
+        #     )
+        # )
         self.model.add(
-            layers.Flatten(
-                input_shape=self.input_shape
+            layers.SimpleRNN(
+                input_shape=(None, self.dim_input), 
+                return_sequences=True, 
+                units=self.nb_units
             )
         )
         self.model.add(
-            layers.Dense(
-                units=self.n_hidden_layer,
-                activation='tanh',
-                kernel_initializer='random_uniform',
-                bias_initializer='zeros'
-            )
-        )
-        self.model.add(
-            layers.Dense(
-                units=self.n_output_layer,
-                activation='softmax'
+            layers.TimeDistributed(
+                layers.Dense(
+                    activation='sigmoid',
+                    units=self.dim_output
+                )
             )
         )
         self.model.compile(
-            loss='sparse_categorical_crossentropy',
-            optimizer='adam',
-            metrics=['accuracy']
+            loss = 'mse', 
+            optimizer = 'rmsprop'
         )
+        # self.model.compile(
+        #     loss='sparse_categorical_crossentropy',
+        #     optimizer='adam',
+        #     metrics=['accuracy']
+        # )
     
     def load_data(self):
-        load_observation_list = np.load(PATH + '/npz/observation_list.npz')
-        load_action_list = np.load(PATH + '/npz/action_list.npz')
+        pygame = np.load(NPZ_PATH+"pygame.npz")
+        self.pygame = pygame.f.arr_0
 
-        # print(type(load_observation_list))
-        # print(type(load_action_list))
-        # print(type(load_observation_list.f.arr_0))
-        # print(load_observation_list.f.arr_0.size)
-        # print(load_observation_list.f.arr_0)
-
-        self.observation_list = load_observation_list.f.arr_0
-        self.action_list = load_action_list.f.arr_0
+    def load_another_data(self):
+        pygame = np.load("database/pygame/npz2/pygame.npz")
+        self.another_pygame = pygame.f.arr_0
 
 
-    def train(self):
+    def train(self, epochs, batch_size):
         print(self.model.summary())
 
-        self.load_data()
-        history = self.model.fit(self.observation_list, self.action_list, epochs=1, batch_size=10)
+        history = self.model.fit(self.pygame, self.ACTIONS, epochs=epochs, batch_size=batch_size)
         self.plot_history(history)
 
         # Evaluate the model on the test data using `evaluate`
-        print('\n# Evaluate on test data')
-        results = self.model.evaluate(self.observation_list, self.action_list, batch_size=32)
-        print('test loss, test acc:', results)
+        # print('\n# Evaluate on test data')
+        # results = self.model.evaluate(self.pygame, self.action_list, batch_size=32)
+        # print('test loss, test acc:', results)
 
 
     def predict(self, observation, reward):
-        processed_observation = self.gray_crop(observation)
-        tridimensional_data = np.expand_dims(processed_observation, axis=0)
-
-        actions = self.model.predict(x=tridimensional_data)
-        # print(actions)
+        actions = self.model.predict(x=self.another_pygame)
+        print(actions)
 
         selected_action = np.argmax(actions)
-        selected_action = self.optional_policy(selected_action)
 
         # print(selected_action)
         # print(actions[0, selected_action])
 
         return selected_action
-
-    def optional_policy(self, randomic_action):
-        rand_val = np.random.random()
-        if rand_val < self.EPSILON:
-            randomic_action = np.random.randint(0, len(self.ACTIONS))
-        
-        return randomic_action
-        # return opt_policy, actions[0, opt_policy]
-
-    def gray_crop(self, ndarray):
-        # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
-        return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2)
+    
 
     def plot_history(self, history):
         # Plot training & validation accuracy values
@@ -130,5 +141,19 @@ class DeepLearning():
     #     from keras.utils import plot_model
     #     plot_model(self.model, to_file='model.png')
 
-a = DeepLearning()
 
+
+
+
+
+
+# main()
+# p = PrepareData()
+# p.img2npz()
+
+
+a = DeepLearning()
+a.load_data()
+a.train(epochs=10, batch_size=32)
+a.load_another_data()
+a.predict()
