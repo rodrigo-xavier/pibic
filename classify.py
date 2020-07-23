@@ -56,6 +56,10 @@ class DeepLearning():
 
     def __init__(self):
         # self.model.add(
+            # layers.Conv2d(
+            # )
+        # )
+        # self.model.add(
         #     layers.Flatten(
         #         input_shape=self.input_shape
         #     )
@@ -84,6 +88,13 @@ class DeepLearning():
         #     optimizer='adam',
         #     metrics=['accuracy']
         # )
+
+        self.model.summary()
+
+        from tensorflow.keras.utils.vis_utils import plot_model
+        import graphviz
+        from interface import implements, Interface
+        plot_model(self.model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
     
     def load_data(self):
         pygame = np.load(NPZ_PATH+"pygame.npz")
@@ -100,12 +111,6 @@ class DeepLearning():
         history = self.model.fit(self.pygame, self.ACTIONS, epochs=epochs, batch_size=batch_size)
         self.plot_history(history)
 
-        # Evaluate the model on the test data using `evaluate`
-        # print('\n# Evaluate on test data')
-        # results = self.model.evaluate(self.pygame, self.action_list, batch_size=32)
-        # print('test loss, test acc:', results)
-
-
     def predict(self, observation, reward):
         actions = self.model.predict(x=self.another_pygame)
         print(actions)
@@ -116,34 +121,6 @@ class DeepLearning():
         # print(actions[0, selected_action])
 
         return selected_action
-    
-
-    def plot_history(self, history):
-        # Plot training & validation accuracy values
-        plt.plot(history.history['accuracy'])
-        plt.title('Model accuracy')
-        plt.ylabel('Accuracy')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        plt.savefig(PATH + '/plt/accuracy.png')
-        plt.show()
-
-        # Plot training & validation loss values
-        plt.plot(history.history['loss'])
-        plt.title('Model loss')
-        plt.ylabel('Loss')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        plt.savefig(PATH + '/plt/loss.png')
-        plt.show()
-    
-    # def store_model_graph(self):
-    #     from keras.utils import plot_model
-    #     plot_model(self.model, to_file='model.png')
-
-
-
-
 
 
 
