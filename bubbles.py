@@ -8,8 +8,9 @@ import os
 
 
 # Configurations
-STORE_PATH = "../.database/pibic/pygame/img/"
+IMG_PATH = "../.database/pibic/pygame/img/"
 NPZ_PATH = "../.database/pibic/pygame/npz/"
+NUMBER_OF_DATA = 100
 FPS = 10
 CIRCLE_BUBBLES = 0
 SQUARE_BUBBLES = 1
@@ -229,14 +230,14 @@ class Draw:
         clock.tick(FPS)
     
     def save(self, n):
-        file = STORE_PATH + str(n) + '.png'
+        file = IMG_PATH + str(n) + '.png'
         pygame.image.save(surface, file)
 
     def img2npz(self):
         # from utils import show_array_as_img
-        for f in os.listdir(STORE_PATH):
+        for f in os.listdir(IMG_PATH):
             if f.find(".png") != -1:
-                img = self.img_processing("{}/{}".format(STORE_PATH, f))
+                img = self.img_processing("{}/{}".format(IMG_PATH, f))
                 # show_array_as_img(img, 'gray')
                 self.tensor.append(img)
 
@@ -257,7 +258,7 @@ class Draw:
 
 
 def run(draw):
-    for i in range(0,100):
+    for i in range(0, NUMBER_OF_DATA):
     # while True:
         draw.close()
         draw.show()
