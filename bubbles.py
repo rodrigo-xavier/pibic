@@ -2,18 +2,21 @@ import pygame
 from pygame.locals import *
 import random, math, sys
 import time
+import cv2
+import numpy as np
+import os
 
 
 # Configurations
-STORE_PATH = "../.database/pibic/pygame/img"
-FPS = 100
-CIRCLE_BUBBLES = 5
+STORE_PATH = "../.database/pibic/pygame/img/"
+NPZ_PATH = "../.database/pibic/pygame/npz/"
+FPS = 10
+CIRCLE_BUBBLES = 0
 SQUARE_BUBBLES = 1
-BUBBLES_COLOR = (0,0,150)
-SURFACE_COLOR = (25,0,0)
+BUBBLES_COLOR = (255,255,255)
+SURFACE_COLOR = (0,0,0)
 WIDTH, HEIGHT = 50, 50
-BUBBLES_RADIUS = 10
-# BUBBLES_RADIUS = int(random.random()*50) + 1
+BUBBLES_RADIUS = 6
 
 # Init Game
 pygame.init()
@@ -27,8 +30,8 @@ class Circle:
     def __init__(self):
         self.color = BUBBLES_COLOR
         self.radius = BUBBLES_RADIUS
-        self.x = random.randint(self.radius, WIDTH-self.radius)
-        self.y = random.randint(self.radius, HEIGHT-self.radius)
+        self.x = random.randint(self.radius+1, WIDTH-self.radius-1)
+        self.y = random.randint(self.radius+1, HEIGHT-self.radius-1)
         self.speedx = random.random()
         self.speedy = random.random()
     
@@ -40,11 +43,50 @@ class Circle:
     
     def circle_collision(self, other_circle):
         if math.sqrt(((self.x-other_circle.x)**2)+((self.y-other_circle.y)**2)) <= (self.radius+other_circle.radius):
-            self.collision()
+            self.collision(other_circle)
     
-    def collision(self):
-        self.speedx *= -1
-        self.speedy *= -1
+    # def collision(self):
+    #     self.speedx *= -1
+    #     self.speedy *= -1
+
+    def collision(self, other_circle):
+        speed = math.sqrt((self.speedx**2)+(self.speedy**2))
+        diffx = -(self.x-other_circle.x)
+        diffy = -(self.y-other_circle.y)
+        if diffx > 0:
+            if diffy > 0:
+                angle = math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+            elif diffy < 0:
+                angle = math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+        elif diffx < 0:
+            if diffy > 0:
+                angle = 180 + math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+            elif diffy < 0:
+                angle = -180 + math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+        elif diffx == 0:
+            if diffy > 0:
+                angle = -90
+            else:
+                angle = 90
+            speedx = speed*math.cos(math.radians(angle))
+            speedy = speed*math.sin(math.radians(angle))
+        elif diffy == 0:
+            if diffx < 0:
+                angle = 0
+            else:
+                angle = 180
+            speedx = speed*math.cos(math.radians(angle))
+            speedy = speed*math.sin(math.radians(angle))
+        self.speedx = speedx
+        self.speedy = speedy
     
     def move(self):
         self.x += self.speedx
@@ -58,8 +100,8 @@ class Square:
     def __init__(self):
         self.color = BUBBLES_COLOR
         self.radius = BUBBLES_RADIUS # Describes the circumference that cover the square
-        self.x = random.randint(self.radius, WIDTH-self.radius)
-        self.y = random.randint(self.radius, HEIGHT-self.radius)
+        self.x = random.randint(self.radius+1, WIDTH-self.radius-1)
+        self.y = random.randint(self.radius+1, HEIGHT-self.radius-1)
         self.z = math.sqrt(2*(self.radius**2))
         self.w = math.sqrt(2*(self.radius**2))
         self.speedx = random.random()
@@ -68,18 +110,57 @@ class Square:
         # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
     
     def board_collision(self):
-        if self.x < self.radius or self.x > WIDTH-(2*self.radius):
+        if self.x < self.radius or self.x > WIDTH-self.radius:
             self.speedx *= -1
-        if self.y < self.radius or self.y > HEIGHT-(2*self.radius):
+        if self.y < self.radius or self.y > HEIGHT-self.radius:
             self.speedy *= -1
     
     def square_collision(self, other_square):
         if math.sqrt(((self.x-other_square.x)**2)+((self.y-other_square.y)**2)) <= (self.radius+other_square.radius):
-            self.collision()
+            self.collision(other_square)
     
-    def collision(self):
-        self.speedx *= -1
-        self.speedy *= -1
+    # def collision(self):
+    #     self.speedx *= -1
+    #     self.speedy *= -1
+    
+    def collision(self, other_square):
+        speed = math.sqrt((self.speedx**2)+(self.speedy**2))
+        diffx = -(self.x-other_square.x)
+        diffy = -(self.y-other_square.y)
+        if diffx > 0:
+            if diffy > 0:
+                angle = math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+            elif diffy < 0:
+                angle = math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+        elif diffx < 0:
+            if diffy > 0:
+                angle = 180 + math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+            elif diffy < 0:
+                angle = -180 + math.degrees(math.atan(diffy/diffx))
+                speedx = -speed*math.cos(math.radians(angle))
+                speedy = -speed*math.sin(math.radians(angle))
+        elif diffx == 0:
+            if diffy > 0:
+                angle = -90
+            else:
+                angle = 90
+            speedx = speed*math.cos(math.radians(angle))
+            speedy = speed*math.sin(math.radians(angle))
+        elif diffy == 0:
+            if diffx < 0:
+                angle = 0
+            else:
+                angle = 180
+            speedx = speed*math.cos(math.radians(angle))
+            speedy = speed*math.sin(math.radians(angle))
+        self.speedx = speedx
+        self.speedy = speedy
     
     def move(self):
         self.x += self.speedx
@@ -92,14 +173,16 @@ class Square:
 class Draw:
     circles = []
     squares = []
+    tensor = []
+    screen = surface
 
     def __init__(self):
-        # for x in range(CIRCLE_BUBBLES):
-        #     self.circles.append(Circle())
+        for x in range(CIRCLE_BUBBLES):
+            self.circles.append(Circle())
         for x in range(SQUARE_BUBBLES):
             self.squares.append(Square())
     
-    def move_circle(self):
+    def move(self):
         for circle in self.circles:
             circle.board_collision()
 
@@ -107,10 +190,13 @@ class Draw:
                 if circle != other_circle:
                     circle.circle_collision(other_circle)
             
+            if self.squares is not None:
+                for square in self.squares:
+                    circle.circle_collision(square)
+            
             circle.move()
             circle.show()
-
-    def move_square(self):
+        
         for square in self.squares:
             square.board_collision()
 
@@ -118,21 +204,50 @@ class Draw:
                 if square != other_square:
                     square.square_collision(other_square)
             
+            if self.circles is not None:
+                for circle in self.circles:
+                    square.square_collision(circle)
+            
             square.move()
-            square.show()  
+            square.show()
+
+    # def move_just_square(self):
+    #     for square in self.squares:
+    #         square.board_collision()
+
+    #         for other_square in self.squares:
+    #             if square != other_square:
+    #                 square.square_collision(other_square)
+            
+    #         square.move()
+    #         square.show()
 
     def show(self):
-        pygame.display.flip()
         surface.fill(SURFACE_COLOR)
+        self.move()
+        pygame.display.flip()
         clock.tick(FPS)
     
-    def save(self):
-        pass
-        # global x
-        # x += 1
-        # PATH = "/home/cyber/GitHub/pibic/pibic/database/pygame/img/"
-        # file = PATH + str(x) + '.png'
-        # pygame.image.save(Surface, file)
+    def save(self, n):
+        file = STORE_PATH + str(n) + '.png'
+        pygame.image.save(surface, file)
+
+    def img2npz(self):
+        # from utils import show_array_as_img
+        for f in os.listdir(STORE_PATH):
+            if f.find(".png") != -1:
+                img = self.img_processing("{}/{}".format(STORE_PATH, f))
+                # show_array_as_img(img, 'gray')
+                self.tensor.append(img)
+
+        np.savez_compressed(NPZ_PATH + "bubbles.npz", self.tensor)
+    
+    def img_processing(self, img_path):
+        img = cv2.imread(img_path, 0) # Convert to grayscale
+        img = cv2.resize(img, (WIDTH, HEIGHT))
+        img = img.astype('float32')
+        img /= 255
+        return img
 
     def close(self):
         keystate = pygame.key.get_pressed()
@@ -142,11 +257,12 @@ class Draw:
 
 
 def run(draw):
-    # for i in range(0,100):
-    while True:
+    for i in range(0,100):
+    # while True:
         draw.close()
-        draw.move_square()        
         draw.show()
+        draw.save(i)
+    draw.img2npz()
     pygame.quit(); sys.exit()
 
 
