@@ -52,3 +52,33 @@ def arguments():
     parser.add_argument('--weights', type=str, default=None)
     args = parser.parse_args()
     return args
+
+
+
+IMG_SIZE = 256
+PNG_PATH = "database/pygame/img/"
+NPZ_PATH = "database/pygame/npz/"
+PATH = "/home/cyber/GitHub/pibic/pibic/database/pygame"
+
+class PrepareData():
+    img_size = IMG_SIZE
+    png_path = PNG_PATH
+    npz_path = NPZ_PATH + "pygame.npz"
+    group_of_images = []
+
+    def get_preprocessed_img(self, img_path):
+        import cv2
+        img = cv2.imread(img_path, 0) # Convert to grayscale
+        img = cv2.resize(img, (self.img_size, self.img_size))
+        img = img.astype('float32')
+        img /= 255       
+        return img
+
+    def img2npz(self):
+        for f in os.listdir(self.png_path):
+            if f.find(".png") != -1:
+                img = self.get_preprocessed_img("{}/{}".format(self.png_path, f))
+                # show_array_as_img(img, 'gray')
+                self.group_of_images.append(img)
+
+        np.savez_compressed(self.npz_path, self.group_of_images)
