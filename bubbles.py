@@ -11,13 +11,13 @@ import os
 IMG_PATH = "../.database/pibic/pygame/img/"
 NPZ_PATH = "../.database/pibic/pygame/npz/"
 NUMBER_OF_DATA = 100
-FPS = 10
-CIRCLE_BUBBLES = 0
-SQUARE_BUBBLES = 1
-BUBBLES_COLOR = (255,255,255)
+FPS = 300
+CIRCLE_BUBBLES = 10
+SQUARE_BUBBLES = 10
+BUBBLES_COLOR = (225,25,125)
 SURFACE_COLOR = (0,0,0)
-WIDTH, HEIGHT = 50, 50
-BUBBLES_RADIUS = 6
+WIDTH, HEIGHT = 400, 400
+BUBBLES_RADIUS = 20
 
 # Init Game
 pygame.init()
@@ -258,12 +258,12 @@ class Draw:
 
 
 def run(draw):
-    for i in range(0, NUMBER_OF_DATA):
-    # while True:
+    #for i in range(0, NUMBER_OF_DATA):
+    while True:
         draw.close()
         draw.show()
-        draw.save(i)
-    draw.img2npz()
+        #draw.save(i)
+    #draw.img2npz()
     pygame.quit(); sys.exit()
 
 

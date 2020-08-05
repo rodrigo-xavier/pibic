@@ -8,10 +8,14 @@ import math
 WIDTH, HEIGHT = 50, 50
 IMG_PATH = "../.database/pibic/pygame/img/"
 NPZ_PATH = "../.database/pibic/pygame/npz/"
+MODEL_PATH = "../.database/pibic/pygame/model/"
 
 
 class BubblesClassifier():
     model = tf.keras.models.Sequential()
+
+    ACTIONS = [0, 1]
+    MAP_ACTIONS = {0: "quadrado", 1: "circulo"}
 
     input_shape = (WIDTH, HEIGHT)
     dim_input = (WIDTH)*(HEIGHT)
@@ -20,23 +24,18 @@ class BubblesClassifier():
     n_hidden_layer = round(math.sqrt((dim_input*dim_output)))
 
     def __init__(self):
-        # self.model.add(
-        #     layers.Flatten(
-        #         input_shape=self.input_shape
-        #     )
-        # )
         self.model.add(
             layers.SimpleRNN(
                 self.n_hidden_layer,
-                input_shape=(None, self.dim_input), 
-                return_sequences=True, 
-                units=self.nb_units
+                input_shape=(self.input_shape), 
+                return_sequences=True,
+                #units=self.nb_units
             )
         )
         self.model.add(
             layers.Dense(
                 self.dim_output,
-                activation='softmax'
+                activation='sigmoid'
             )
         )
         # self.model.add(
@@ -47,35 +46,30 @@ class BubblesClassifier():
         #         )
         #     )
         # )
-        self.model.compile(
-            loss = 'mse', 
-            optimizer = 'rmsprop'
-        )
-        # self.model.compile(
-        #     loss='sparse_categorical_crossentropy',
-        #     optimizer='adam',
-        #     metrics=['accuracy']
-        # )
+        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        self.model.summary()
-
-        from tensorflow.keras.utils.vis_utils import plot_model
-        import graphviz
-        from interface import implements, Interface
-        plot_model(self.model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
-    
-    def load_data(self):
-        pygame = np.load(NPZ_PATH+"bubbles.npz")
-        self.pygame = pygame.f.arr_0
-
-    def train(self, epochs, batch_size):
         print(self.model.summary())
 
-        history = self.model.fit(self.pygame, self.ACTIONS, epochs=epochs, batch_size=batch_size)
+    
+    def prepare_data(self):
+        bubbles = np.load(NPZ_PATH+"bubbles.npz")
+        _bubbles = bubbles.f.arr_0
+        
+        squares = np.zeros((int(_bubbles.shape[0]/2),), dtype=int)
+        circles = np.ones((int(_bubbles.shape[0]/2),), dtype=int)
+
+        self.input = np.reshape(_bubbles, _bubbles.shape)
+        self.output = np.concatenate((squares, circles), axis=None)
+
+
+    def train(self, epochs, batch_size):
+        history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
+        self.save_model()
         self.plot_history(history)
 
+
     def predict(self, observation, reward):
-        actions = self.model.predict(x=self.another_pygame)
+        actions = self.model.predict(x=self.another_bubble)
         print(actions)
 
         selected_action = np.argmax(actions)
@@ -84,10 +78,44 @@ class BubblesClassifier():
         # print(actions[0, selected_action])
 
         return selected_action
+    
+    def plot(self):
+        pass
+
+
+    def save_model(self):
+        model_json = self.model.to_json()
+
+        with open(MODEL_PATH+"model.json", "w") as json_file:
+            json_file.write(model_json)
+
+        # serialize weights to HDF5
+        self.model.save_weights(MODEL_PATH+"model.h5")
+        print("Saved model to disk")
+
+
+    def load_model(self):
+        self.model = tf.keras.models.load_model(MODEL_PATH+"model.h5")
+
+
+    def show_network(self):
+        from ann_visualizer.visualize import ann_viz;
+
+        # fix random seed for reproducibility
+        np.random.seed(7)
+
+        # load json and create model
+        json_file = open(MODEL_PATH+'model.json', 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        _model = tf.keras.models.model_from_json(loaded_model_json)
+        
+        # load weights into new model
+        _model.load_weights(MODEL_PATH+"model.h5")
+        ann_viz(_model, title="Artificial Neural network - Model Visualization")
 
 
 a = BubblesClassifier()
-a.load_data()
-a.train(epochs=10, batch_size=32)
-a.load_another_data()
-a.predict()
+a.prepare_data()
+a.train(epochs=2, batch_size=32)
+a.show_network()

@@ -19,29 +19,28 @@ IMG_PATH = "../.database/pibic/pygame/img/"
 NPZ_PATH = "../.database/pibic/pygame/npz/"
 
 
-pygame = np.load(NPZ_PATH+"bubbles.npz")
-pygame = pygame.f.arr_0
-
+bubbles = np.load(NPZ_PATH+"bubbles.npz")
+bubbles = bubbles.f.arr_0
 
 
 target = []
-for i in range(50):
+for i in range(100):
     zero_um = (0,1)
     target.append(zero_um)
 
-for i in range(50):
+for i in range(100):
     um_zero = (1,0)
     target.append(um_zero)
 
 
-x = np.reshape(pygame, (100, 50, 50))
+x = np.reshape(bubbles, (200, 2500, 1))
 y = np.array(target)
 
 
 
 
 
-n_input_layer = 1000
+n_input_layer = 2500
 n_output_layer = 1
 n_hidden_layer = round(math.sqrt((n_input_layer*n_output_layer)))
 print("nro de neurônios na hidden layer:", n_hidden_layer)
@@ -98,12 +97,3 @@ print("Saved model to disk")
 
 
 
-test = np.reshape(test, (40, 1000, 1))
-
-
-
-
-
-predictions = model.predict(test)
-for i in range(len(test)):
-    print(predictions[i], 'expected', test_target[i])
