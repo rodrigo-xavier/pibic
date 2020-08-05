@@ -8,6 +8,7 @@ import math
 WIDTH, HEIGHT = 50, 50
 IMG_PATH = "../.database/pibic/pygame/img/"
 NPZ_PATH = "../.database/pibic/pygame/npz/"
+TEST_NPZ_PATH = "../.database/pibic/pygame/npz_test/"
 MODEL_PATH = "../.database/pibic/pygame/model/"
 
 
@@ -20,22 +21,19 @@ class BubblesClassifier():
     input_shape = (WIDTH, HEIGHT)
     dim_input = (WIDTH)*(HEIGHT)
     dim_output = len(ACTIONS)
-    nb_units = 5
+    # dim_output = 1
     n_hidden_layer = round(math.sqrt((dim_input*dim_output)))
 
     def __init__(self):
         self.model.add(
             layers.SimpleRNN(
-                self.n_hidden_layer,
-                input_shape=(self.input_shape), 
-                return_sequences=True,
-                #units=self.nb_units
-            )
-        )
-        self.model.add(
-            layers.Dense(
-                self.dim_output,
-                activation='sigmoid'
+                units=self.n_hidden_layer,
+                input_shape=self.input_shape,
+                # input_shape=self.input_shape,
+                activation='tanh',
+                kernel_initializer='random_uniform',
+                # bias_initializer='zeros'
+                # return_sequences=True,
             )
         )
         # self.model.add(
@@ -46,6 +44,12 @@ class BubblesClassifier():
         #         )
         #     )
         # )
+        self.model.add(
+            layers.Dense(
+                self.dim_output,
+                activation='sigmoid'
+            )
+        )
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         print(self.model.summary())
@@ -54,22 +58,47 @@ class BubblesClassifier():
     def prepare_data(self):
         bubbles = np.load(NPZ_PATH+"bubbles.npz")
         _bubbles = bubbles.f.arr_0
+        bubble_test = np.load(TEST_NPZ_PATH+"bubbles.npz")
+        self.input_test = bubble_test.f.arr_0
         
-        squares = np.zeros((int(_bubbles.shape[0]/2),), dtype=int)
-        circles = np.ones((int(_bubbles.shape[0]/2),), dtype=int)
+        # zeros = np.zeros((int(_bubbles.shape[0]/2),2), dtype=int)
+        # ones = np.ones((int(_bubbles.shape[0]/2),), dtype=int)
 
-        self.input = np.reshape(_bubbles, _bubbles.shape)
-        self.output = np.concatenate((squares, circles), axis=None)
+        # squares = zeros
+        # squares[:, [-1]]=1
+        # circles = zeros
+        # circles[:, [0]]=1
+
+        # self.input = np.reshape(_bubbles, _bubbles.shape)
+        # self.input = np.reshape(_bubbles, _bubbles.shape)
+        self.input = _bubbles
+        # self.output = np.concatenate((squares, circles), axis=None)
+
+
+        f50_100_target = []
+        for i in range(100):
+            zero_um = (0,1)
+            f50_100_target.append(zero_um)
+        self.output_test = np.array(f50_100_target)
+
+        for i in range(100):
+            um_zero = (1,0)
+            f50_100_target.append(um_zero)
+        
+        self.output = np.array(f50_100_target)
 
 
     def train(self, epochs, batch_size):
-        history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
+        self.history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
+
+        scores = self.model.evaluate(self.input_test, self.output_test)
+        print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
+
         self.save_model()
-        self.plot_history(history)
 
 
     def predict(self, observation, reward):
-        actions = self.model.predict(x=self.another_bubble)
+        actions = self.model.predict(x=self.input)
         print(actions)
 
         selected_action = np.argmax(actions)
@@ -79,8 +108,23 @@ class BubblesClassifier():
 
         return selected_action
     
-    def plot(self):
-        pass
+
+    def plot_graph(self):
+        plt.plot(self.history.history['accuracy'])
+        # plt.plot(self.history.history['val_accuracy'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
+        # summarize history for loss
+        plt.plot(self.history.history['loss'])
+        # plt.plot(self.history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
 
 
     def save_model(self):
@@ -112,10 +156,21 @@ class BubblesClassifier():
         
         # load weights into new model
         _model.load_weights(MODEL_PATH+"model.h5")
-        ann_viz(_model, title="Artificial Neural network - Model Visualization")
+        ann_viz(self.model, view=True, title="Artificial Neural network - Model Visualization")
+    
+    def plot_network(self):
+        from keras.utils.vis_utils import plot_model
+        import graphviz
+        from interface import implements, Interface
+
+        path = MODEL_PATH + "model_plot.png"
+        plot_model(self.model, to_file=path, show_shapes=True, show_layer_names=True)
+        print("Saved network graph to disk")
 
 
 a = BubblesClassifier()
 a.prepare_data()
-a.train(epochs=2, batch_size=32)
-a.show_network()
+a.train(epochs=50, batch_size=32)
+a.plot_network()
+a.plot_graph()
+# a.show_network()
