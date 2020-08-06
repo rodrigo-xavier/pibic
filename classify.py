@@ -29,9 +29,9 @@ class BubblesClassifier():
             layers.SimpleRNN(
                 units=self.n_hidden_layer,
                 input_shape=self.input_shape,
-                # input_shape=self.input_shape,
                 activation='tanh',
                 kernel_initializer='random_uniform',
+                # input_shape=self.input_shape,
                 # bias_initializer='zeros'
                 # return_sequences=True,
             )
@@ -50,7 +50,7 @@ class BubblesClassifier():
                 activation='sigmoid'
             )
         )
-        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
         print(self.model.summary())
 
@@ -72,20 +72,21 @@ class BubblesClassifier():
         # self.input = np.reshape(_bubbles, _bubbles.shape)
         # self.input = np.reshape(_bubbles, _bubbles.shape)
         self.input = _bubbles
+        # self.input = _bubbles.shape()
         # self.output = np.concatenate((squares, circles), axis=None)
 
 
-        f50_100_target = []
+        target = []
         for i in range(100):
             zero_um = (0,1)
-            f50_100_target.append(zero_um)
-        self.output_test = np.array(f50_100_target)
+            target.append(zero_um)
 
         for i in range(100):
             um_zero = (1,0)
-            f50_100_target.append(um_zero)
+            target.append(um_zero)
         
-        self.output = np.array(f50_100_target)
+        self.output = np.array(target)
+        self.output_test = np.array(target)
 
 
     def train(self, epochs, batch_size):
@@ -170,7 +171,7 @@ class BubblesClassifier():
 
 a = BubblesClassifier()
 a.prepare_data()
-a.train(epochs=50, batch_size=32)
+a.train(epochs=3000, batch_size=32)
 a.plot_network()
 a.plot_graph()
 # a.show_network()
