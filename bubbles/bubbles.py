@@ -23,43 +23,41 @@ class Bubbles:
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
         self.fps = FPS
-        self.n_circles = CIRCLE_BUBBLES
-        self.n_squares = SQUARE_BUBBLES
         self.bubbles_color = BUBBLES_COLOR
         self.radius = BUBBLES_RADIUS
         self.width = WIDTH
         self.height = HEIGHT
 
-        for i in range(self.n_circles):
+        for i in range(CIRCLE_BUBBLES):
             self.circles.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height))
-        for j in range(self.n_squares):
+        for j in range(SQUARE_BUBBLES):
             self.squares.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height))
     
     def move(self):
         for circle in self.circles:
-            circle.board_collision()
+            circle.check_board_collision()
 
             for other_circle in self.circles:
                 if circle != other_circle:
-                    circle.circle_collision(other_circle)
+                    circle.check_circle_collision(other_circle)
             
             if self.squares is not None:
                 for square in self.squares:
-                    circle.circle_collision(square)
+                    circle.check_circle_collision(square)
             
             circle.move()
             circle.show()
         
         for square in self.squares:
-            square.board_collision()
+            square.check_board_collision()
 
             for other_square in self.squares:
                 if square != other_square:
-                    square.square_collision(other_square)
+                    square.check_square_collision(other_square)
             
             if self.circles is not None:
                 for circle in self.circles:
-                    square.square_collision(circle)
+                    square.check_square_collision(circle)
             
             square.move()
             square.show()

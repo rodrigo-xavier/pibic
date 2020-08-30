@@ -9,7 +9,7 @@ from bubbles import Bubbles
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 250, 250
-FPS = 30
+FPS = 60
 NUMBER_OF_DATA = 200
 BUBBLES_RADIUS = 15
 CIRCLE_BUBBLES = 10
@@ -18,8 +18,8 @@ SQUARE_BUBBLES = 0
 
 
 def run(bubbles):
-    for i in range(0, NUMBER_OF_DATA):
-    # while True:
+    # for i in range(0, NUMBER_OF_DATA):
+    while True:
         bubbles.close()
         bubbles.show()
         # bubbles.save(i)

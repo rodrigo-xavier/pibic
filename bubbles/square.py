@@ -4,27 +4,30 @@ from pygame.locals import *
 
 class Square:
     def __init__(self, surface=None, BUBBLES_COLOR=(0,0,0), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
+        
         self.surface = surface
         self.width = WIDTH
         self.height = HEIGHT
         self.color = BUBBLES_COLOR
         self.radius = BUBBLES_RADIUS
+        
         self.x = random.randint(self.radius+1, self.width-self.radius-1)
         self.y = random.randint(self.radius+1, self.height-self.radius-1)
         self.z = math.sqrt(2*(self.radius**2))
         self.w = math.sqrt(2*(self.radius**2))
+        
         self.speedx = random.random()
         self.speedy = random.random()
 
         # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
     
-    def board_collision(self):
+    def check_board_collision(self):
         if self.x < self.radius or self.x > self.width-self.radius:
             self.speedx *= -1
         if self.y < self.radius or self.y > self.height-self.radius:
             self.speedy *= -1
     
-    def square_collision(self, other_square):
+    def check_square_collision(self, other_square):
         if math.sqrt(((self.x-other_square.x)**2)+((self.y-other_square.y)**2)) <= (self.radius+other_square.radius):
             self.collision(other_square)
     

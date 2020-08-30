@@ -1,75 +1,55 @@
 import random, math
 import pygame
 from pygame.locals import *
+import numpy as np
+
+
+# self.x = horizontal da superficie
+# self.y = vertical da superficie
+# self.m = Massa da esfera
+# self.v = Tupla com velocidades na componente i e j
+# self.width = Largura da janela
+# self.height = Comprimento da janela
 
 class Circle:
-    def __init__(self, surface=None, bubbles_color=(0,0,0), bubbles_radius=1, width=50, height=50):
+    def __init__(self, surface=None, BUBBLES_COLOR=(0,0,0), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
+        
         self.surface = surface
-        self.width = width
-        self.height = height
-        self.color = bubbles_color
-        self.radius = bubbles_radius
-        self.x = random.randint(self.radius+1, self.width-self.radius-1)
-        self.y = random.randint(self.radius+1, self.height-self.radius-1)
-        self.speedx = random.random()
-        self.speedy = random.random()
-    
-    def board_collision(self):
-        if self.x < self.radius or self.x > self.width-self.radius:
-            self.speedx *= -1
-        if self.y < self.radius or self.y > self.height-self.radius:
-            self.speedy *= -1
-    
-    def circle_collision(self, other_circle):
-        if math.sqrt(((self.x-other_circle.x)**2)+((self.y-other_circle.y)**2)) <= (self.radius+other_circle.radius):
-            self.collision(other_circle)
-    
-    # def collision(self):
-    #     self.speedx *= -1
-    #     self.speedy *= -1
+        self.width = WIDTH
+        self.height = HEIGHT
+        self.color = BUBBLES_COLOR
+        self.radius = BUBBLES_RADIUS
 
-    def collision(self, other_circle):
-        speed = math.sqrt((self.speedx**2)+(self.speedy**2))
-        diffx = -(self.x-other_circle.x)
-        diffy = -(self.y-other_circle.y)
-        if diffx > 0:
-            if diffy > 0:
-                angle = math.degrees(math.atan(diffy/diffx))
-                speedx = -speed*math.cos(math.radians(angle))
-                speedy = -speed*math.sin(math.radians(angle))
-            elif diffy < 0:
-                angle = math.degrees(math.atan(diffy/diffx))
-                speedx = -speed*math.cos(math.radians(angle))
-                speedy = -speed*math.sin(math.radians(angle))
-        elif diffx < 0:
-            if diffy > 0:
-                angle = 180 + math.degrees(math.atan(diffy/diffx))
-                speedx = -speed*math.cos(math.radians(angle))
-                speedy = -speed*math.sin(math.radians(angle))
-            elif diffy < 0:
-                angle = -180 + math.degrees(math.atan(diffy/diffx))
-                speedx = -speed*math.cos(math.radians(angle))
-                speedy = -speed*math.sin(math.radians(angle))
-        elif diffx == 0:
-            if diffy > 0:
-                angle = -90
-            else:
-                angle = 90
-            speedx = speed*math.cos(math.radians(angle))
-            speedy = speed*math.sin(math.radians(angle))
-        elif diffy == 0:
-            if diffx < 0:
-                angle = 0
-            else:
-                angle = 180
-            speedx = speed*math.cos(math.radians(angle))
-            speedy = speed*math.sin(math.radians(angle))
-        self.speedx = speedx
-        self.speedy = speedy
+        self.x = random.randint(self.radius, self.width-self.radius)
+        self.y = random.randint(self.radius, self.height-self.radius)
+        self.m = random.random()
+        self.v = np.array([random.random(), random.random()])
+    
+    def check_board_collision(self):
+        if self.x < self.radius or self.x > self.width-self.radius:
+            self.v[0] *= -1
+        if self.y < self.radius or self.y > self.height-self.radius:
+            self.v[1] *= -1
+    
+    def check_circle_collision(self, other_circle):
+        if math.sqrt(((self.x-other_circle.x)**2)+((self.y-other_circle.y)**2)) <= (self.radius+other_circle.radius):
+            self.elastic_collision(other_circle)
+
+    # https://pt.wikipedia.org/wiki/Colis%C3%A3o_el%C3%A1stica#:~:text=Em%20f%C3%ADsica%2C%20uma%20colis%C3%A3o%20el%C3%A1stica,deforma%C3%A7%C3%B5es%20permanentes%20durante%20o%20impacto.
+    # vf = (v1i*(m1-m2) + 2*v2i*m2) / (m1 + m2)
+    def elastic_collision(self, other_circle):
+        v1i = self.v
+        v2i = other_circle.v
+
+        m1 = self.m
+        m2 = other_circle.m
+
+        self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
+        other_circle.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
     
     def move(self):
-        self.x += self.speedx
-        self.y += self.speedy
+        self.x += self.v[0]
+        self.y += self.v[1]
     
     def show(self):
-        pygame.draw.circle(self.surface, self.color, (int(self.x),int(self.height-self.y)), self.radius)
+        pygame.draw.circle(self.surface, self.color, (int(self.x),int(self.y)), self.radius)
