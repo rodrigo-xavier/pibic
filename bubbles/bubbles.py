@@ -7,6 +7,7 @@ import numpy as np
 import os
 from circle import Circle
 from square import Square
+import math
 
 
 IMG_PATH = "../../.database/pibic/pygame/img/"
@@ -14,8 +15,7 @@ NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
 
 class Bubbles:
-    circles = []
-    squares = []
+    geometric = []
     tensor = []
 
     def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
@@ -29,49 +29,29 @@ class Bubbles:
         self.height = HEIGHT
 
         for i in range(CIRCLE_BUBBLES):
-            self.circles.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height))
-        for j in range(SQUARE_BUBBLES):
-            self.squares.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height))
-    
+            self.geometric.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+        for i in range(SQUARE_BUBBLES):
+            self.geometric.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+
     def move(self):
-        for circle in self.circles:
-            circle.check_board_collision()
+        for geometric in self.geometric:
+            geometric.board_collision()
+            if geometric.check_collision():
+                geometric.elastic_collision(self.take_the_nearest(geometric))
+            
+            geometric.show()
+    
+    def circular_trajectory(self):
+        pass
 
-            for other_circle in self.circles:
-                if circle != other_circle:
-                    circle.check_circle_collision(other_circle)
-            
-            if self.squares is not None:
-                for square in self.squares:
-                    circle.check_circle_collision(square)
-            
-            circle.move()
-            circle.show()
-        
-        for square in self.squares:
-            square.check_board_collision()
+    def take_the_nearest(self, geometric):
+        distance = []
 
-            for other_square in self.squares:
-                if square != other_square:
-                    square.check_square_collision(other_square)
-            
-            if self.circles is not None:
-                for circle in self.circles:
-                    square.check_square_collision(circle)
-            
-            square.move()
-            square.show()
+        for nearest in self.geometric:
+            if nearest != geometric:
+                distance.append(math.sqrt(((geometric.x-nearest.x)**2)+((geometric.y-nearest.y)**2)))
 
-    # def move_just_square(self):
-    #     for square in self.squares:
-    #         square.board_collision()
-
-    #         for other_square in self.squares:
-    #             if square != other_square:
-    #                 square.square_collision(other_square)
-            
-    #         square.move()
-    #         square.show()
+        return self.geometric[distance.index(min(distance))]
 
     def show(self):
         self.surface.fill(self.surface_color)

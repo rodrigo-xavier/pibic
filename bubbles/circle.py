@@ -25,15 +25,40 @@ class Circle:
         self.m = random.random()
         self.v = np.array([random.random(), random.random()])
     
-    def check_board_collision(self):
-        if self.x < self.radius or self.x > self.width-self.radius:
+    def board_collision(self):
+        if self.x <= (self.radius) or self.x >= (self.width - self.radius):
             self.v[0] *= -1
-        if self.y < self.radius or self.y > self.height-self.radius:
+        if self.y <= (self.radius) or self.y >= (self.height - self.radius):
             self.v[1] *= -1
+        
+        self.move()
+
+    def check_collision(self):
+        r2 = self.radius * self.radius
+
+        for x1 in range(int(self.x - self.radius), int(self.x + self.radius)):
+            y1 = int(math.sqrt(math.fabs(r2 - math.pow(x1 - self.x, 2))) + self.y + 1)
+            y2 = int(self.y - (y1 - self.y))
+
+            if not (x1 <= 0 or x1 >= self.width or y1 <= 0 or y1 >= self.height or y2 <= 0 or y2 >= self.height):
+                color_y1 = self.surface.get_at((x1, y1))
+                color_y2 = self.surface.get_at((x1, y2))
+
+                if (color_y1 == self.color) or (color_y2 == self.color):
+                    return True
+
+        for y1 in range(int(self.y - self.radius), int(self.y + self.radius)):
+            x1 = int(math.sqrt(math.fabs(r2 - math.pow(y1 - self.y, 2))) + self.x + 1)
+            x2 = int(self.x - (x1 - self.x))
+
+            if not (y1 <= 0 or y1 >= self.height or x1 <= 0 or x1 >= self.width or x2 <= 0 or x2 >= self.width):
+                color_x1 = self.surface.get_at((x1, y1))
+                color_x2 = self.surface.get_at((x2, y1))
+
+                if (color_x1 == self.color) or (color_x2 == self.color):
+                    return True
     
-    def check_circle_collision(self, other_circle):
-        if math.sqrt(((self.x-other_circle.x)**2)+((self.y-other_circle.y)**2)) <= (self.radius+other_circle.radius):
-            self.elastic_collision(other_circle)
+        return False
 
     # https://pt.wikipedia.org/wiki/Colis%C3%A3o_el%C3%A1stica#:~:text=Em%20f%C3%ADsica%2C%20uma%20colis%C3%A3o%20el%C3%A1stica,deforma%C3%A7%C3%B5es%20permanentes%20durante%20o%20impacto.
     # vf = (v1i*(m1-m2) + 2*v2i*m2) / (m1 + m2)
@@ -46,6 +71,8 @@ class Circle:
 
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
         other_circle.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
+
+        self.move()
     
     def move(self):
         self.x += self.v[0]
