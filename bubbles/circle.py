@@ -62,15 +62,15 @@ class Circle:
 
     # https://pt.wikipedia.org/wiki/Colis%C3%A3o_el%C3%A1stica#:~:text=Em%20f%C3%ADsica%2C%20uma%20colis%C3%A3o%20el%C3%A1stica,deforma%C3%A7%C3%B5es%20permanentes%20durante%20o%20impacto.
     # vf = (v1i*(m1-m2) + 2*v2i*m2) / (m1 + m2)
-    def elastic_collision(self, other_circle):
+    def elastic_collision(self, geometric):
         v1i = self.v
-        v2i = other_circle.v
+        v2i = geometric.v
 
         m1 = self.m
-        m2 = other_circle.m
+        m2 = geometric.m
 
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
-        other_circle.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
+        geometric.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
 
         self.move()
     

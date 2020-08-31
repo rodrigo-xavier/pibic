@@ -52,15 +52,15 @@ class Square:
     
         return False
     
-    def elastic_collision(self, other_circle):
+    def elastic_collision(self, geometric):
         v1i = self.v
-        v2i = other_circle.v
+        v2i = geometric.v
 
         m1 = self.m
-        m2 = other_circle.m
+        m2 = geometric.m
 
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
-        other_circle.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
+        geometric.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
 
         self.move()
     
