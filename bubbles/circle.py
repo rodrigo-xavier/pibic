@@ -12,7 +12,7 @@ import numpy as np
 # self.height = Comprimento da janela
 
 class Circle:
-    def __init__(self, surface=None, BUBBLES_COLOR=(0,0,0), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
+    def __init__(self, surface=None, BUBBLES_COLOR=(0,0,0), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, MOVEMENT_SHAPE='circular', TRAGETORY_RADIUS=12):
         
         self.surface = surface
         self.width = WIDTH
@@ -20,11 +20,22 @@ class Circle:
         self.color = BUBBLES_COLOR
         self.radius = BUBBLES_RADIUS
 
-        self.x = random.randint(self.radius, self.width-self.radius)
-        self.y = random.randint(self.radius, self.height-self.radius)
+        self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
+        # self.x = random.randint(self.radius, self.width-self.radius)
+        # self.y = random.randint(self.radius, self.height-self.radius)
+        self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+        self.y = self.CIRCULAR_CENTER[1]
         self.m = random.random()
         self.v = np.array([random.random(), random.random()])
     
+        self.ang_idx = 0
+
+        self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
+        self.n_loops = 0
+        self.movement_shape = MOVEMENT_SHAPE
+        self.tragetory_radius = TRAGETORY_RADIUS
+        self.n_angles = TRAGETORY_RADIUS * 8
+
     def board_collision(self):
         if self.x <= (self.radius) or self.x >= (self.width - self.radius):
             self.v[0] *= -1
@@ -75,8 +86,33 @@ class Circle:
         self.move()
     
     def move(self):
-        self.x += self.v[0]
-        self.y += self.v[1]
+        # self.x += self.v[0]
+        # self.y += self.v[1]
+        
+        if self.movement_shape == 'circular':
+
+            if self.ang_idx == self.n_angles:
+                self.ang_idx = 0
+                self.n_loops = self.n_loops + 1
+
+            x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
+            y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
+
+            self.ang_idx = self.ang_idx + 1
+
+            self.x = self.CIRCULAR_CENTER[0] + x_center
+            self.y = self.CIRCULAR_CENTER[1] + y_center
+
+        elif self.movement_shape == 'square':
+
+            if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+                self.y = self.y + 1
+            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+                self.x = self.x - 1
+            elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+                self.y = self.y - 1
+            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+                self.x = self.x + 1
     
     def show(self):
         pygame.draw.circle(self.surface, self.color, (int(self.x),int(self.y)), self.radius)

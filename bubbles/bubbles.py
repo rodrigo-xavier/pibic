@@ -18,7 +18,7 @@ class Bubbles:
     geometric = []
     tensor = []
 
-    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
+    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, MOVEMENT_SHAPE='circular', TRAGETORY_RADIUS=12):
         
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
@@ -27,11 +27,13 @@ class Bubbles:
         self.radius = BUBBLES_RADIUS
         self.width = WIDTH
         self.height = HEIGHT
+        self.movement_shape = MOVEMENT_SHAPE
+        self.tragetory_radius = TRAGETORY_RADIUS
 
         for i in range(CIRCLE_BUBBLES):
-            self.geometric.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+            self.geometric.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height, self.movement_shape, self.tragetory_radius))
         for i in range(SQUARE_BUBBLES):
-            self.geometric.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+            self.geometric.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height, self.movement_shape, self.tragetory_radius))
 
     def move(self):
         for geometric in self.geometric:
@@ -42,7 +44,21 @@ class Bubbles:
             geometric.show()
     
     def circular_trajectory(self):
-        pass
+        
+        '''if MOVEMENT_SHAPE == 'circular':
+            if self.ang_idx == n_angles:
+                self.ang_idx = 0
+                self.n_loops = self.n_loops + 1
+
+            x_center = radius * math.cos(self.angles[self.ang_idx])
+            y_center = radius * math.sin(self.angles[self.ang_idx])
+
+            self.ang_idx = self.ang_idx + 1
+
+            self.x = CIRCULAR_CENTER[0] + x_center
+            self.y = CIRCULAR_CENTER[1] + y_center
+
+            print(self.n_loops)'''
 
     def take_the_nearest(self, geometric):
         distance = []
