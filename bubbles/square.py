@@ -14,7 +14,7 @@ class Square:
         # self.x = random.randint(BUBBLES_RADIUS, self.width-BUBBLES_RADIUS)
         # self.y = random.randint(BUBBLES_RADIUS, self.height-BUBBLES_RADIUS)
         self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
-        self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+        self.x = self.CIRCULAR_CENTER[0] + TRAGETORY_RADIUS
         self.y = self.CIRCULAR_CENTER[1]
 
         self.z = math.sqrt(2*(BUBBLES_RADIUS**2)) # Largura
@@ -95,7 +95,7 @@ class Square:
             self.y = self.CIRCULAR_CENTER[1] + y_center
 
         elif self.movement_shape == 'square':
-
+            '''
             if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
                 self.y = self.y + 1
             elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
@@ -103,6 +103,16 @@ class Square:
             elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
                 self.y = self.y - 1
             elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+                self.x = self.x + 1
+            print(self.x, self.y)'''
+
+            if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.y = self.y - 1
+            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.x = self.x - 1
+            elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+                self.y = self.y + 1
+            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
                 self.x = self.x + 1
 
     def show(self):

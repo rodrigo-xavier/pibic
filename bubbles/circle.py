@@ -23,7 +23,7 @@ class Circle:
         self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
         # self.x = random.randint(self.radius, self.width-self.radius)
         # self.y = random.randint(self.radius, self.height-self.radius)
-        self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+        self.x = self.CIRCULAR_CENTER[0] +  TRAGETORY_RADIUS
         self.y = self.CIRCULAR_CENTER[1]
         self.m = random.random()
         self.v = np.array([random.random(), random.random()])
