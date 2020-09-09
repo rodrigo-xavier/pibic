@@ -20,13 +20,24 @@ TRAGETORY_RADIUS = 12
 
 def run(bubbles):
     
-    for i in range(0, NUMBER_OF_DATA):
-    # while True:
-        bubbles.close()
-        bubbles.show()
-        bubbles.save(i)
-    bubbles.img2npz()
-    pygame.quit(); sys.exit()
+    for j in range(0, VOLTA):
+        for i in range(0, NUMBER_OF_DATA):
+        # while True:
+            bubbles.close()
+            bubbles.show()
+            bubbles.save(i)
+        bubbles.img2npz_trajetory()
+        pygame.quit(); sys.exit()
+
+
+
+    # for i in range(0, NUMBER_OF_DATA):
+    # # while True:
+    #     bubbles.close()
+    #     bubbles.show()
+    #     bubbles.save(i)
+    # bubbles.img2npz_trajetory()
+    # pygame.quit(); sys.exit()
 
 # Init Game
 pygame.init()

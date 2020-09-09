@@ -10,11 +10,11 @@ from square import Square
 import math
 
 
-# IMG_PATH = "../../.database/pibic/pygame/img/"
-# NPZ_PATH = "../../.database/pibic/pygame/npz/"
+IMG_PATH = "../../.database/pibic/pygame/img/"
+NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
-IMG_PATH = "../../database/img/"
-NPZ_PATH = "../../database/npz/"
+# IMG_PATH = "../../database/img/"
+# NPZ_PATH = "../../database/npz/"
 
 class Bubbles:
     geometric = []
@@ -90,6 +90,18 @@ class Bubbles:
                 self.tensor.append(img)
 
         apart = int(len(self.tensor)*0.8)
+
+        np.savez_compressed(NPZ_PATH + "bubbles_train.npz", self.tensor[:apart])
+        np.savez_compressed(NPZ_PATH + "bubbles_test.npz", self.tensor[apart:])
+
+    def img2npz_trajetory(self):
+        for f in os.listdir(IMG_PATH):
+            if f.find(".png") != -1:
+                img = self.img_processing("{}/{}".format(IMG_PATH, f))
+                self.tensor.append(img)
+        
+        volta = len(os.listdir)/1320
+        apart = int(volta*0.8)
 
         np.savez_compressed(NPZ_PATH + "bubbles_train.npz", self.tensor[:apart])
         np.savez_compressed(NPZ_PATH + "bubbles_test.npz", self.tensor[apart:])
