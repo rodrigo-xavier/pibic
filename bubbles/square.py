@@ -95,6 +95,10 @@ class Square:
             self.y = self.CIRCULAR_CENTER[1] + y_center
 
         elif self.movement_shape == 'square':
+
+            # 120/8 = 15
+            tragetory_step = self.tragetory_radius/15
+
             '''
             if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
                 self.y = self.y + 1
@@ -105,15 +109,15 @@ class Square:
             elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
                 self.x = self.x + 1
             print(self.x, self.y)'''
-
-            if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
-                self.y = self.y - 1
-            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
-                self.x = self.x - 1
-            elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
-                self.y = self.y + 1
-            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
-                self.x = self.x + 1
+            
+            if self.x >= (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.y = self.y - tragetory_step
+            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.x = self.x - tragetory_step
+            elif self.x <= (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+                self.y = self.y + tragetory_step
+            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+                self.x = self.x + tragetory_step
 
     def show(self):
         pygame.draw.rect(self.surface, self.color,(int(self.x),int(self.y),int(self.z),int(self.w)))

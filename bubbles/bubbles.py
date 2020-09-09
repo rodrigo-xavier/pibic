@@ -10,11 +10,11 @@ from square import Square
 import math
 
 
-IMG_PATH = "../../.database/pibic/pygame/img/"
-NPZ_PATH = "../../.database/pibic/pygame/npz/"
+# IMG_PATH = "../../.database/pibic/pygame/img/"
+# NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
-# IMG_PATH = "../../database/img/"
-# NPZ_PATH = "../../database/npz/"
+IMG_PATH = "../../database/img/"
+NPZ_PATH = "../../database/npz/"
 
 class Bubbles:
     geometric = []
