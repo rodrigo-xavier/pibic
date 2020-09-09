@@ -30,11 +30,11 @@ class Circle:
     
         self.ang_idx = 0
 
-        self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
+        self.angles = np.linspace(0, 2*np.pi, 120, endpoint=True)
         self.n_loops = 0
         self.movement_shape = MOVEMENT_SHAPE
         self.tragetory_radius = TRAGETORY_RADIUS
-        self.n_angles = TRAGETORY_RADIUS * 8
+        self.n_angles = len(self.angles) - 1
 
     def board_collision(self):
         if self.x <= (self.radius) or self.x >= (self.width - self.radius):
@@ -96,7 +96,7 @@ class Circle:
                 self.n_loops = self.n_loops + 1
 
             x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-            y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
+            y_center = - self.tragetory_radius * math.sin(self.angles[self.ang_idx])
 
             self.ang_idx = self.ang_idx + 1
 
@@ -105,14 +105,29 @@ class Circle:
 
         elif self.movement_shape == 'square':
 
-            if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+            # 120/8 = 15
+
+            tragetory_step = self.tragetory_radius/15
+            
+            '''
+            if self.x => (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
                 self.y = self.y + 1
-            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
                 self.x = self.x - 1
             elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
                 self.y = self.y - 1
-            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
                 self.x = self.x + 1
+            '''
+            
+            if self.x >= (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.y = self.y - tragetory_step
+            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+                self.x = self.x - tragetory_step
+            elif self.x <= (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+                self.y = self.y + tragetory_step
+            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+                self.x = self.x + tragetory_step
     
     def show(self):
         pygame.draw.circle(self.surface, self.color, (int(self.x),int(self.y)), self.radius)

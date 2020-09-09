@@ -87,7 +87,7 @@ class Square:
                 self.n_loops = self.n_loops + 1
 
             x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-            y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
+            y_center = - self.tragetory_radius * math.sin(self.angles[self.ang_idx])
 
             self.ang_idx = self.ang_idx + 1
 
