@@ -25,11 +25,11 @@ class Square:
 
         self.ang_idx = 0
 
-        self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
+        self.angles = np.linspace(0, 2*np.pi, 120, endpoint=True)
         self.n_loops = 0
         self.movement_shape = MOVEMENT_SHAPE
         self.tragetory_radius = TRAGETORY_RADIUS
-        self.n_angles = TRAGETORY_RADIUS * 8
+        self.n_angles = len(self.angles) - 1
 
         # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
     
