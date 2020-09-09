@@ -11,33 +11,25 @@ BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 50, 50
 FPS = 100
 NUMBER_OF_DATA = 500
-BUBBLES_RADIUS = 5
+BUBBLES_RADIUS = 30
 CIRCLE_BUBBLES = 0
 SQUARE_BUBBLES = 1
-MOVEMENT_SHAPE = 'circular'
-# MOVEMENT_SHAPE = 'square'
+# MOVEMENT_SHAPE = 'circular'
+MOVEMENT_SHAPE = 'square'
 TRAGETORY_RADIUS = 12
+VOLTA = 10
 
 def run(bubbles):
+    n = NUMBER_OF_DATA*VOLTA
     
-    for j in range(0, VOLTA):
-        for i in range(0, NUMBER_OF_DATA):
-        # while True:
-            bubbles.close()
-            bubbles.show()
-            bubbles.save(i)
-        bubbles.img2npz_trajetory()
-        pygame.quit(); sys.exit()
+    for i in range(0, n):
+    # while True:
+        bubbles.close()
+        bubbles.show()
+        bubbles.save(i)
+    bubbles.img2npz_trajetory()
+    pygame.quit(); sys.exit()
 
-
-
-    # for i in range(0, NUMBER_OF_DATA):
-    # # while True:
-    #     bubbles.close()
-    #     bubbles.show()
-    #     bubbles.save(i)
-    # bubbles.img2npz_trajetory()
-    # pygame.quit(); sys.exit()
 
 # Init Game
 pygame.init()
