@@ -100,7 +100,7 @@ class Bubbles:
                 img = self.img_processing("{}/{}".format(IMG_PATH, f))
                 self.tensor.append(img)
         
-        volta = len(os.listdir)/1320
+        volta = len(os.listdir())/1320
         apart = int(volta*0.8)
 
         np.savez_compressed(NPZ_PATH + "bubbles_train.npz", self.tensor[:apart])

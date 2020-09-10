@@ -17,7 +17,7 @@ SQUARE_BUBBLES = 1
 # MOVEMENT_SHAPE = 'circular'
 MOVEMENT_SHAPE = 'square'
 TRAGETORY_RADIUS = 165
-VOLTA = 5
+VOLTA = 10
 
 def run(bubbles):
     
@@ -27,8 +27,8 @@ def run(bubbles):
             bubbles.close()
             bubbles.show()
             bubbles.save(i)
-        bubbles.img2npz_trajetory()
-        pygame.quit(); sys.exit()
+    bubbles.img2npz_trajetory()
+    pygame.quit(); sys.exit()
 
 
 
