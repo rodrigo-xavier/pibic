@@ -13,6 +13,7 @@ class Square:
         
         # self.x = random.randint(BUBBLES_RADIUS, self.width-BUBBLES_RADIUS)
         # self.y = random.randint(BUBBLES_RADIUS, self.height-BUBBLES_RADIUS)
+        
         self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
         self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
         self.y = self.CIRCULAR_CENTER[1]
@@ -22,6 +23,8 @@ class Square:
 
         self.m = random.random()
         self.v = np.array([random.random(), random.random()])
+
+
 
         self.ang_idx = 0
 
@@ -39,7 +42,7 @@ class Square:
         if self.y <= 0 or self.y >= (self.height - self.w):
             self.v[1] *= -1
         
-        self.move()
+        self.move_random()
     
     def check_collision(self):
         for x in range(int(self.x), int(self.x + self.z)):
@@ -74,36 +77,34 @@ class Square:
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
         geometric.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
 
-        self.move()
+        self.move_random()
     
-    def move(self):
-        # self.x += self.v[0]
-        # self.y += self.v[1]
+    def move_random(self):
+        self.x += self.v[0]
+        self.y += self.v[1]
+    
+    def move_circular(self):
+        if self.ang_idx == self.n_angles:
+            self.ang_idx = 0
+            self.n_loops = self.n_loops + 1
 
-        if self.movement_shape == 'circular':
+        x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
+        y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
 
-            if self.ang_idx == self.n_angles:
-                self.ang_idx = 0
-                self.n_loops = self.n_loops + 1
+        self.ang_idx = self.ang_idx + 1
 
-            x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-            y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
-
-            self.ang_idx = self.ang_idx + 1
-
-            self.x = self.CIRCULAR_CENTER[0] + x_center
-            self.y = self.CIRCULAR_CENTER[1] + y_center
-
-        elif self.movement_shape == 'square':
-
-            if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-                self.y = self.y + 1
-            elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-                self.x = self.x - 1
-            elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-                self.y = self.y - 1
-            elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-                self.x = self.x + 1
+        self.x = self.CIRCULAR_CENTER[0] + x_center
+        self.y = self.CIRCULAR_CENTER[1] + y_center
+    
+    def move_square(self):
+        if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+            self.y = self.y + 1
+        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
+            self.x = self.x - 1
+        elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+            self.y = self.y - 1
+        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
+            self.x = self.x + 1
 
     def show(self):
         pygame.draw.rect(self.surface, self.color,(int(self.x),int(self.y),int(self.z),int(self.w)))

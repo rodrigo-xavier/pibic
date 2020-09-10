@@ -14,15 +14,17 @@ NUMBER_OF_DATA = 200
 BUBBLES_RADIUS = 30
 CIRCLE_BUBBLES = 0
 SQUARE_BUBBLES = 1
-MOVEMENT_SHAPE = 'circular'
-# MOVEMENT_SHAPE = 'square'
+
+TRAJETORY_TYPE = 'random'
+# TRAJETORY_TYPE = 'circular'
+# TRAJETORY_TYPE = 'square'
 TRAGETORY_RADIUS = 125
 
 def run(bubbles):
     # for i in range(0, NUMBER_OF_DATA):
     while True:
         bubbles.close()
-        bubbles.show()
+        bubbles.show(TRAJETORY_TYPE, TRAGETORY_RADIUS)
         # bubbles.save(i)
     # bubbles.img2npz()
     pygame.quit(); sys.exit()
