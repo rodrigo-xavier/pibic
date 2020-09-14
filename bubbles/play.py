@@ -14,7 +14,7 @@ IMG_PATH = "../../.database/pibic/pygame/img/"
 NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
 
-class Bubbles:
+class Play:
     geometric = []
     tensor = []
 
@@ -23,31 +23,46 @@ class Bubbles:
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
         self.fps = FPS
-        self.bubbles_color = BUBBLES_COLOR
-        self.radius = BUBBLES_RADIUS
-        self.width = WIDTH
-        self.height = HEIGHT
 
         for i in range(CIRCLE_BUBBLES):
-            self.geometric.append(Circle(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+            self.geometric.append(
+                Circle(
+                    surface=self.surface,
+                    surface_color=self.surface_color,
+                    bubbles_color=BUBBLES_COLOR,
+                    radius=BUBBLES_RADIUS,
+                    width=WIDTH,
+                    height=HEIGHT
+                )
+            )
         for i in range(SQUARE_BUBBLES):
-            self.geometric.append(Square(self.surface, self.bubbles_color, self.radius, self.width, self.height))
+            self.geometric.append(
+                Square(
+                    surface=self.surface,
+                    surface_color=self.surface_color,
+                    bubbles_color=BUBBLES_COLOR,
+                    radius=BUBBLES_RADIUS,
+                    width=WIDTH,
+                    height=HEIGHT
+                )
+            )
 
-    def route_random(self):
+    def random_trajectory(self):
         for geometric in self.geometric:
-            geometric.board_collision()
+            if geometric.check_board_collision():
+                geometric.board_collision()
             if geometric.check_collision():
                 geometric.elastic_collision(self.take_the_nearest(geometric))
             
             geometric.show()
 
-    def route_circular(self, TRAJETORY_RADIUS):
-        self.geometric[0].move_circular()
-        self.geometric[0].show()
+    # def circular_trajectory(self, TRAJETORY_RADIUS):
+    #     self.geometric[0].move_circular()
+    #     self.geometric[0].show()
             
-    def route_square(self, TRAJETORY_RADIUS):
-        self.geometric[0].move_square()
-        self.geometric[0].show()
+    # def square_trajectory(self, TRAJETORY_RADIUS):
+    #     self.geometric[0].move_square()
+    #     self.geometric[0].show()
 
     def take_the_nearest(self, geometric):
         distance = []
@@ -58,18 +73,25 @@ class Bubbles:
 
         return self.geometric[distance.index(min(distance))]
 
-    def show(self, TRAJETORY_TYPE='random', TRAJETORY_RADIUS=0):
+    def show(self):
         self.surface.fill(self.surface_color)
-
-        if TRAJETORY_TYPE == 'random':
-            self.route_random()
-        elif TRAJETORY_TYPE == 'circular':
-            self.route_circular(TRAJETORY_RADIUS)
-        elif TRAJETORY_TYPE == 'square':
-            self.route_square(TRAJETORY_RADIUS)
+        self.route_random()
 
         pygame.display.flip()
         pygame.time.Clock().tick(self.fps)
+
+    # def show(self, TRAJETORY_TYPE='random', TRAJETORY_RADIUS=0):
+    #     self.surface.fill(self.surface_color)
+
+    #     if TRAJETORY_TYPE == 'random':
+    #         self.route_random()
+    #     elif TRAJETORY_TYPE == 'circular':
+    #         self.route_circular(TRAJETORY_RADIUS)
+    #     elif TRAJETORY_TYPE == 'square':
+    #         self.route_square(TRAJETORY_RADIUS)
+
+    #     pygame.display.flip()
+    #     pygame.time.Clock().tick(self.fps)
     
     def save(self, n):
         file = IMG_PATH + str(n) + '.png'
@@ -100,3 +122,5 @@ class Bubbles:
         for event in pygame.event.get():
             if event.type == QUIT or keystate[K_ESCAPE]:
                 pygame.quit(); sys.exit()
+
+
