@@ -2,47 +2,41 @@ import random, math
 import pygame
 from pygame.locals import *
 import numpy as np
+from abstract import Bubbles
 
-class Square:
-    def __init__(self, surface=None, BUBBLES_COLOR=(0,0,0), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, MOVEMENT_SHAPE='circular', TRAGETORY_RADIUS=12):
+class Square(Bubbles):
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+
+        # self.surface = surface
+        # self.width = WIDTH
+        # self.height = HEIGHT
+        # self.color = BUBBLES_COLOR
         
-        self.surface = surface
-        self.width = WIDTH
-        self.height = HEIGHT
-        self.color = BUBBLES_COLOR
+        # # self.x = random.randint(BUBBLES_RADIUS, self.width-BUBBLES_RADIUS)
+        # # self.y = random.randint(BUBBLES_RADIUS, self.height-BUBBLES_RADIUS)
         
-        # self.x = random.randint(BUBBLES_RADIUS, self.width-BUBBLES_RADIUS)
-        # self.y = random.randint(BUBBLES_RADIUS, self.height-BUBBLES_RADIUS)
-        
-        self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
-        self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
-        self.y = self.CIRCULAR_CENTER[1]
+        # self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
+        # self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+        # self.y = self.CIRCULAR_CENTER[1]
 
-        self.z = math.sqrt(2*(BUBBLES_RADIUS**2)) # Largura
-        self.w = math.sqrt(2*(BUBBLES_RADIUS**2)) # Comprimento
+        # self.z = math.sqrt(2*(BUBBLES_RADIUS**2)) # Largura
+        # self.w = math.sqrt(2*(BUBBLES_RADIUS**2)) # Comprimento
 
-        self.m = random.random()
-        self.v = np.array([random.random(), random.random()])
+        # self.m = random.random()
+        # self.v = np.array([random.random(), random.random()])
 
 
 
-        self.ang_idx = 0
+        # self.ang_idx = 0
 
-        self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
-        self.n_loops = 0
-        self.movement_shape = MOVEMENT_SHAPE
-        self.tragetory_radius = TRAGETORY_RADIUS
-        self.n_angles = TRAGETORY_RADIUS * 8
+        # self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
+        # self.n_loops = 0
+        # self.movement_shape = MOVEMENT_SHAPE
+        # self.tragetory_radius = TRAGETORY_RADIUS
+        # self.n_angles = TRAGETORY_RADIUS * 8
 
         # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
-    
-    def board_collision(self):
-        if self.x <= 0 or self.x >= (self.width - self.z):
-            self.v[0] *= -1
-        if self.y <= 0 or self.y >= (self.height - self.w):
-            self.v[1] *= -1
-        
-        self.move_random()
     
     def check_collision(self):
         for x in range(int(self.x), int(self.x + self.z)):
@@ -52,7 +46,7 @@ class Square:
                 color1 = self.surface.get_at((int(x), int(self.y)))
                 color2 = self.surface.get_at((int(x), int(y)))
 
-                if (color1 == self.color) or (color2 == self.color):
+                if (color1 != self.surface_color) or (color2 != self.surface_color):
                     return True
 
         for y in range(int(self.y), int(self.y + self.w)):
@@ -62,49 +56,21 @@ class Square:
                 color1 = self.surface.get_at((int(self.x), int(y)))
                 color2 = self.surface.get_at((int(x), int(y)))
 
-                if (color1 == self.color) or (color2 == self.color):
+                if (color1 != self.surface_color) or (color2 != self.surface_color):
                     return True
     
         return False
     
-    def elastic_collision(self, geometric):
-        v1i = self.v
-        v2i = geometric.v
+    def check_board_collision(self):
+        OFFSET = 5
 
-        m1 = self.m
-        m2 = geometric.m
-
-        self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
-        geometric.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
-
-        self.move_random()
-    
-    def move_random(self):
-        self.x += self.v[0]
-        self.y += self.v[1]
-    
-    def move_circular(self):
-        if self.ang_idx == self.n_angles:
-            self.ang_idx = 0
-            self.n_loops = self.n_loops + 1
-
-        x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-        y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
-
-        self.ang_idx = self.ang_idx + 1
-
-        self.x = self.CIRCULAR_CENTER[0] + x_center
-        self.y = self.CIRCULAR_CENTER[1] + y_center
-    
-    def move_square(self):
-        if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.y = self.y + 1
-        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.x = self.x - 1
-        elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.y = self.y - 1
-        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.x = self.x + 1
+        if self.x <= OFFSET or self.x >= (self.width - self.w - OFFSET):
+            self.board_collision_x = True
+            return True
+        if self.y <= OFFSET or self.y >= (self.height - self.w - OFFSET):
+            self.board_collision_y = True
+            return True
+        return False
 
     def show(self):
-        pygame.draw.rect(self.surface, self.color,(int(self.x),int(self.y),int(self.z),int(self.w)))
+        pygame.draw.rect(self.surface, self.bubbles_color,(int(self.x),int(self.y),int(self.z),int(self.w)))

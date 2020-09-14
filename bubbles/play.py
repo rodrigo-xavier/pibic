@@ -15,7 +15,7 @@ NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
 
 class Play:
-    geometric = []
+    bubbles = []
     tensor = []
 
     def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
@@ -26,7 +26,7 @@ class Play:
 
         for i in range(CIRCLE_BUBBLES):
             x, y = self.build_far(BUBBLES_RADIUS, WIDTH, HEIGHT)
-            self.geometric.append(
+            self.bubbles.append(
                 Circle(
                     surface=self.surface,
                     surface_color=self.surface_color,
@@ -40,7 +40,7 @@ class Play:
             )
         for i in range(SQUARE_BUBBLES):
             x, y = self.build_far(BUBBLES_RADIUS, WIDTH, HEIGHT)
-            self.geometric.append(
+            self.bubbles.append(
                 Square(
                     surface=self.surface,
                     surface_color=self.surface_color,
@@ -57,7 +57,7 @@ class Play:
         OFFSET = 10
         far = False
 
-        if not self.geometric:
+        if not self.bubbles:
             x = random.randint(radius+OFFSET, width-radius-OFFSET)
             y = random.randint(radius+OFFSET, height-radius-OFFSET)
             return x, y
@@ -66,38 +66,44 @@ class Play:
             x = random.randint(radius, width-radius)
             y = random.randint(radius, height-radius)
 
-            for geometric in self.geometric:
-                if math.sqrt((geometric.x-x)**2 + (geometric.y-y)**2) > (2*radius + OFFSET):
+            for bubble in self.bubbles:
+                if math.sqrt((bubble.x-x)**2 + (bubble.y-y)**2) > (2*radius + OFFSET):
                     return x, y
         
         return x, y
 
     def random_trajectory(self):
-        for geometric in self.geometric:
-            if geometric.check_board_collision():
-                geometric.board_collision()
-            geometric.move()
-            if geometric.check_collision():
-                geometric.elastic_collision(self.take_the_nearest(geometric))
+        for bubble in self.bubbles:
+            is_nearest = False
+            if bubble.check_board_collision():
+                bubble.board_collision()
             
-            geometric.show()
+            for nearest in self.bubbles:
+                if math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)) <= (bubble.radius + nearest.radius):
+                    is_nearest = True
+            
+            if is_nearest and bubble.check_collision():
+                bubble.elastic_collision(self.take_the_nearest(bubble))
+            
+            bubble.move()
+            bubble.show()
 
     # def circular_trajectory(self, TRAJETORY_RADIUS):
-    #     self.geometric[0].move_circular()
-    #     self.geometric[0].show()
+    #     self.bubbles[0].move_circular()
+    #     self.bubbles[0].show()
             
     # def square_trajectory(self, TRAJETORY_RADIUS):
-    #     self.geometric[0].move_square()
-    #     self.geometric[0].show()
+    #     self.bubbles[0].move_square()
+    #     self.bubbles[0].show()
 
-    def take_the_nearest(self, geometric):
+    def take_the_nearest(self, bubble):
         distance = []
 
-        for nearest in self.geometric:
-            if nearest != geometric:
-                distance.append(math.sqrt(((geometric.x-nearest.x)**2)+((geometric.y-nearest.y)**2)))
+        for nearest in self.bubbles:
+            if nearest != bubble:
+                distance.append(math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)))
 
-        return self.geometric[distance.index(min(distance))]
+        return self.bubbles[distance.index(min(distance))]
 
     def show(self):
         self.surface.fill(self.surface_color)

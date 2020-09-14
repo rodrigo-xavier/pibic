@@ -5,6 +5,8 @@ import random, math, sys
 from play import Play
 
 
+# TODO: X e Y do quadrado nao estao no centro, tentar corrigir isso para evitar infinitos problemas
+
 # Configurations
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
@@ -12,7 +14,7 @@ WIDTH, HEIGHT = 500, 500
 FPS = 10000
 NUMBER_OF_DATA = 200
 BUBBLES_RADIUS = 30
-CIRCLE_BUBBLES = 5
+CIRCLE_BUBBLES = 15
 SQUARE_BUBBLES = 0
 
 TRAJECTORY = 'random'

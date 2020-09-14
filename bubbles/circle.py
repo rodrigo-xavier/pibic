@@ -36,11 +36,11 @@ class Circle(Bubbles):
 
             if color != self.surface_color:
                 return True
-
+        
         return False
 
     def check_board_collision(self):
-        OFFSET = 2
+        OFFSET = 5
 
         if self.x <= (self.radius + OFFSET) or self.x >= (self.width - self.radius - OFFSET):
             self.board_collision_x = True

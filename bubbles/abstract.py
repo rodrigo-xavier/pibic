@@ -5,8 +5,10 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 
-# self.x = horizontal da superficie
-# self.y = vertical da superficie
+# self.x = ponto da coordenada horizontal da superficie
+# self.y = ponto da coordenada vertical da superficie
+# self.w = Largura
+# self.z = Comprimento
 # self.m = Massa da esfera
 # self.v = Tupla com velocidades na componente i e j
 # self.width = Largura da janela
