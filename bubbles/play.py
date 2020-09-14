@@ -7,7 +7,7 @@ import numpy as np
 import os
 from circle import Circle
 from square import Square
-import math
+import math, random
 
 
 IMG_PATH = "../../.database/pibic/pygame/img/"
@@ -25,32 +25,58 @@ class Play:
         self.fps = FPS
 
         for i in range(CIRCLE_BUBBLES):
+            x, y = self.build_far(BUBBLES_RADIUS, WIDTH, HEIGHT)
             self.geometric.append(
                 Circle(
                     surface=self.surface,
                     surface_color=self.surface_color,
                     bubbles_color=BUBBLES_COLOR,
-                    radius=BUBBLES_RADIUS,
+                    bubbles_radius=BUBBLES_RADIUS,
                     width=WIDTH,
-                    height=HEIGHT
+                    height=HEIGHT,
+                    x=x,
+                    y=y,
                 )
             )
         for i in range(SQUARE_BUBBLES):
+            x, y = self.build_far(BUBBLES_RADIUS, WIDTH, HEIGHT)
             self.geometric.append(
                 Square(
                     surface=self.surface,
                     surface_color=self.surface_color,
                     bubbles_color=BUBBLES_COLOR,
-                    radius=BUBBLES_RADIUS,
+                    bubbles_radius=BUBBLES_RADIUS,
                     width=WIDTH,
-                    height=HEIGHT
+                    height=HEIGHT,
+                    x=x,
+                    y=y,
                 )
             )
+
+    def build_far(self, radius, width, height):
+        OFFSET = 10
+        far = False
+
+        if not self.geometric:
+            x = random.randint(radius+OFFSET, width-radius-OFFSET)
+            y = random.randint(radius+OFFSET, height-radius-OFFSET)
+            return x, y
+
+        while not far:
+            x = random.randint(radius, width-radius)
+            y = random.randint(radius, height-radius)
+
+            for geometric in self.geometric:
+                if math.sqrt((geometric.x-x)**2 + (geometric.y-y)**2) > (2*radius + OFFSET):
+                    return x, y
+        
+        return x, y
 
     def random_trajectory(self):
         for geometric in self.geometric:
             if geometric.check_board_collision():
                 geometric.board_collision()
+            geometric.move()
             if geometric.check_collision():
                 geometric.elastic_collision(self.take_the_nearest(geometric))
             
@@ -75,7 +101,7 @@ class Play:
 
     def show(self):
         self.surface.fill(self.surface_color)
-        self.route_random()
+        self.random_trajectory()
 
         pygame.display.flip()
         pygame.time.Clock().tick(self.fps)

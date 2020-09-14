@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 # self.v = Tupla com velocidades na componente i e j
 # self.width = Largura da janela
 # self.height = Comprimento da janela
-
+# self.radius = Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
 
 class Bubbles(ABC):
     def __init__(self, *args, **kwargs):
@@ -19,12 +19,12 @@ class Bubbles(ABC):
         self.surface = kwargs['surface']
         self.surface_color = kwargs['surface_color']
         self.bubbles_color = kwargs['bubbles_color']
-        self.radius = kwargs['bubbles_radius']
+        self.radius = kwargs['bubbles_radius'] # Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
         self.width = kwargs['width']
         self.height = kwargs['height']
+        self.x = kwargs['x']
+        self.y = kwargs['y']
 
-        self.x = random.randint(self.radius, self.width-self.radius)
-        self.y = random.randint(self.radius, self.height-self.radius)
         self.w = math.sqrt(2*(kwargs['bubbles_radius']**2)) # Largura
         self.z = math.sqrt(2*(kwargs['bubbles_radius']**2)) # Comprimento
 
@@ -45,8 +45,6 @@ class Bubbles(ABC):
 
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
         bubble.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
-
-        self.move()
     
     def board_collision(self):
         if self.board_collision_x:
@@ -55,8 +53,6 @@ class Bubbles(ABC):
         if self.board_collision_y:
             self.board_collision_y = False
             self.v[1] *= -1
-
-        self.move()
     
     def move(self):
         self.x += self.v[0]
