@@ -17,17 +17,19 @@ from abc import ABC, abstractmethod
 
 class Bubbles(ABC):
     def __init__(self, *args, **kwargs):
-        
+
         self.surface = kwargs['surface']
         self.surface_color = kwargs['surface_color']
         self.bubbles_color = kwargs['bubbles_color']
         self.radius = kwargs['bubbles_radius'] # Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
+        self.trajectory = kwargs['trajectory']
+        self.trajectory_radius = kwargs['trajectory_radius']
         self.width = kwargs['width']
         self.height = kwargs['height']
 
         self.v = np.array([random.random(), random.random()])
         self.m = random.random()
-        # self.radius = int(self.m*kwargs['bubbles_radius']) # Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
+        # self.radius = int(self.m*kwargs['bubbles_radius'])
         self.x = kwargs['x']
         self.y = kwargs['y']
         self.w = math.sqrt(2*(self.radius**2)) # Largura

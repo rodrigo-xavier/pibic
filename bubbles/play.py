@@ -18,11 +18,12 @@ class Play:
     bubbles = []
     tensor = []
 
-    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50):
+    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, TRAJECTORY='random', TRAJECTORY_RADIUS=25):
         
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
         self.fps = FPS
+        self.trajectory = TRAJECTORY
 
         for i in range(CIRCLE_BUBBLES):
             x, y = self.build_far(BUBBLES_RADIUS, WIDTH, HEIGHT)
@@ -32,6 +33,8 @@ class Play:
                     surface_color=self.surface_color,
                     bubbles_color=BUBBLES_COLOR,
                     bubbles_radius=BUBBLES_RADIUS,
+                    trajectory=TRAJECTORY,
+                    trajectory_radius=TRAJECTORY_RADIUS,
                     width=WIDTH,
                     height=HEIGHT,
                     x=x,
@@ -46,6 +49,8 @@ class Play:
                     surface_color=self.surface_color,
                     bubbles_color=BUBBLES_COLOR,
                     bubbles_radius=BUBBLES_RADIUS,
+                    trajectory=TRAJECTORY,
+                    trajectory_radius=TRAJECTORY_RADIUS,
                     width=WIDTH,
                     height=HEIGHT,
                     x=x,
@@ -86,16 +91,16 @@ class Play:
             bubble.move()
             bubble.show()
 
-    # def circular_trajectory(self, TRAJETORY_RADIUS):
-    #     self.bubbles[0].move_circular()
-    #     self.bubbles[0].show()
+    def circular_trajectory(self):
+        self.bubbles[0].move_circular()
+        self.bubbles[0].show()
             
-    # def square_trajectory(self, TRAJETORY_RADIUS):
-    #     self.bubbles[0].move_square()
-    #     self.bubbles[0].show()
+    def square_trajectory(self):
+        self.bubbles[0].move_square()
+        self.bubbles[0].show()
 
     def have_collision(self, bubble):
-        OFFSET = 2
+        OFFSET = 3
 
         newx = bubble.x + bubble.v[0]
         newy = bubble.y + bubble.v[1]
@@ -116,23 +121,16 @@ class Play:
 
     def show(self):
         self.surface.fill(self.surface_color)
-        self.random_trajectory()
+
+        if self.trajectory == 'random':
+            self.random_trajectory()
+        elif self.trajectory == 'circular':
+            self.circular_trajectory()
+        elif self.trajectory == 'square':
+            self.square_trajectory()
 
         pygame.display.flip()
         pygame.time.Clock().tick(self.fps)
-
-    # def show(self, TRAJETORY_TYPE='random', TRAJETORY_RADIUS=0):
-    #     self.surface.fill(self.surface_color)
-
-    #     if TRAJETORY_TYPE == 'random':
-    #         self.route_random()
-    #     elif TRAJETORY_TYPE == 'circular':
-    #         self.route_circular(TRAJETORY_RADIUS)
-    #     elif TRAJETORY_TYPE == 'square':
-    #         self.route_square(TRAJETORY_RADIUS)
-
-    #     pygame.display.flip()
-    #     pygame.time.Clock().tick(self.fps)
     
     def save(self, n):
         file = IMG_PATH + str(n) + '.png'

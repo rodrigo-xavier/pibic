@@ -7,57 +7,41 @@ from abstract import Bubbles
 class Square(Bubbles):
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
-
-        # self.surface = surface
-        # self.width = WIDTH
-        # self.height = HEIGHT
-        # self.color = BUBBLES_COLOR
         
-        # # self.x = random.randint(BUBBLES_RADIUS, self.width-BUBBLES_RADIUS)
-        # # self.y = random.randint(BUBBLES_RADIUS, self.height-BUBBLES_RADIUS)
+        if self.trajectory != 'random':
+            self.CIRCULAR_CENTER = (int(self.width/2), int(self.height/2))
+            self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+            self.y = self.CIRCULAR_CENTER[1]
+
+            self.ang_idx = 0
+
+            self.angles = np.linspace(0, 2*np.pi, self.trajectory_radius * 8)
+            self.n_loops = 0
+            self.tragetory_radius = self.trajectory_radius
+            self.n_angles = self.trajectory_radius * 8
+
+            # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
         
-        # self.CIRCULAR_CENTER = (int(WIDTH/2), int(HEIGHT/2))
-        # self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
-        # self.y = self.CIRCULAR_CENTER[1]
-
-        # self.z = math.sqrt(2*(BUBBLES_RADIUS**2)) # Largura
-        # self.w = math.sqrt(2*(BUBBLES_RADIUS**2)) # Comprimento
-
-        # self.m = random.random()
-        # self.v = np.array([random.random(), random.random()])
-
-
-
-        # self.ang_idx = 0
-
-        # self.angles = np.linspace(0, 2*np.pi, TRAGETORY_RADIUS * 8)
-        # self.n_loops = 0
-        # self.movement_shape = MOVEMENT_SHAPE
-        # self.tragetory_radius = TRAGETORY_RADIUS
-        # self.n_angles = TRAGETORY_RADIUS * 8
-
-        # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
-    
     def check_collision(self):
         for x in range(int(self.x - (self.z/2)), int(self.x + (self.z/2))):
-            y = self.x + self.z
+            y_upper = self.y - self.w/2
+            y_lower = self.y + self.w/2
 
-            if not (x <= 0 or x >= self.width or y <= 0 or y >= self.height):
-                color1 = self.surface.get_at((int(x), int(self.y)))
-                color2 = self.surface.get_at((int(x), int(y)))
+            color_side_upper = self.surface.get_at((int(x), int(y_upper)))
+            color_side_lower = self.surface.get_at((int(x), int(y_lower)))
 
-                if (color1 != self.surface_color) or (color2 != self.surface_color):
-                    return True
+            if (color_side_upper != self.surface_color) or (color_side_lower != self.surface_color):
+                return True
 
         for y in range(int(self.y - (self.w/2)), int(self.y + (self.w/2))):
-            x = self.x + self.z
+            x_left = self.x - self.z/2
+            x_right = self.x + self.z/2
 
-            if not (x <= 0 or x >= self.width or y <= 0 or y >= self.height):
-                color1 = self.surface.get_at((int(self.x), int(y)))
-                color2 = self.surface.get_at((int(x), int(y)))
+            color_side_left = self.surface.get_at((int(x_left), int(y)))
+            color_side_right = self.surface.get_at((int(x_right), int(y)))
 
-                if (color1 != self.surface_color) or (color2 != self.surface_color):
-                    return True
+            if (color_side_left != self.surface_color) or (color_side_right != self.surface_color):
+                return True
     
         return False
     
