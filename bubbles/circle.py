@@ -28,41 +28,29 @@ class Circle(Bubbles):
         # self.n_angles = TRAGETORY_RADIUS * 8
 
     def check_collision(self):
-        newx = self.x + self.v[0]
-        newy = self.y + self.v[1]
+        for theta in range(0, 360):
+            x = int ((self.radius * math.cos(theta)) + self.x)
+            y = int ((self.radius * math.sin(theta)) + self.y)
+        
+            color = self.surface.get_at((x, y))
 
-        angle = math.atan2(newy-self.y, newx-self.x)
-
-        x = int ((self.radius * math.cos(angle)) + newx)
-        y = int ((self.radius * math.sin(angle)) + newy)
-
-        color = self.surface.get_at((x, y))
-
-        if color != self.surface_color:
-            return True
+            if color != self.surface_color:
+                return True
         return False
     
-    def board_collision(self):
+    def check_board_collision(self):
         OFFSET = 5
         
         newx = self.x + self.v[0]
         newy = self.y + self.v[1]
 
         if newx <= (self.radius + OFFSET) or newx >= (self.width - self.radius - OFFSET):
-            self.v[0] *= -1
-            self.x += self.v[0]
+            self.board_collision_x = True
+            return True
         if newy <= (self.radius + OFFSET) or newy >= (self.height - self.radius - OFFSET):
-            self.v[1] *= -1
-            self.y += self.v[1]
-        
-
-    def move(self):
-        self.board_collision()
-        if self.check_collision():
-            self.elastic_collision(self.take_the_nearest(self.list_of_bubbles[self.bubble_index]))
-        
-        self.x += self.v[0]
-        self.y += self.v[1]
+            self.board_collision_y = True
+            return True
+        return False
 
     def show(self):
         pygame.draw.circle(self.surface, self.bubbles_color, (int(self.x),int(self.y)), self.radius)

@@ -39,7 +39,7 @@ class Square(Bubbles):
         # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square
     
     def check_collision(self):
-        for x in range(int(self.x), int(self.x + self.z)):
+        for x in range(int(self.x - (self.z/2)), int(self.x + (self.z/2))):
             y = self.x + self.z
 
             if not (x <= 0 or x >= self.width or y <= 0 or y >= self.height):
@@ -49,7 +49,7 @@ class Square(Bubbles):
                 if (color1 != self.surface_color) or (color2 != self.surface_color):
                     return True
 
-        for y in range(int(self.y), int(self.y + self.w)):
+        for y in range(int(self.y - (self.w/2)), int(self.y + (self.w/2))):
             x = self.x + self.z
 
             if not (x <= 0 or x >= self.width or y <= 0 or y >= self.height):
@@ -63,14 +63,23 @@ class Square(Bubbles):
     
     def check_board_collision(self):
         OFFSET = 5
+        
+        newx = self.x + self.v[0] - (self.z/2)
+        newy = self.y + self.v[1] - (self.w/2)
 
-        if self.x <= OFFSET or self.x >= (self.width - self.w - OFFSET):
+        if newx <= OFFSET or newx >= (self.width - self.w - OFFSET):
             self.board_collision_x = True
             return True
-        if self.y <= OFFSET or self.y >= (self.height - self.w - OFFSET):
+        if newy <= OFFSET or newy >= (self.height - self.w - OFFSET):
             self.board_collision_y = True
             return True
         return False
 
     def show(self):
-        pygame.draw.rect(self.surface, self.bubbles_color,(int(self.x),int(self.y),int(self.z),int(self.w)))
+        # Assume-se que x e y sao coordenadas do centro do quadrado. Porem, para desenhar o quadrado, 
+        # as coordenadas que precisamos sao as coordenadas do vertice superior esquerdo, por isso
+        # eh necessario ajustar as coordenadas sempre que for preciso
+
+        x = self.x - self.z/2
+        y = self.y - self.w/2
+        pygame.draw.rect(self.surface, self.bubbles_color,(int(x),int(y),int(self.z),int(self.w)))

@@ -52,12 +52,11 @@ class Play:
                     y=y,
                 )
             )
-        for bubble_index,bubble in enumerate(self.bubbles):
-            bubble.set_list_of_bubbles(self.bubbles, bubble_index)
 
     def build_far(self, radius, width, height):
-        OFFSET = 10
+        OFFSET = 5
         far = False
+        distance = []
 
         if not self.bubbles:
             x = random.randint(radius+OFFSET, width-radius-OFFSET)
@@ -65,35 +64,27 @@ class Play:
             return x, y
 
         while not far:
-            x = random.randint(radius, width-radius)
-            y = random.randint(radius, height-radius)
+            distance = []
+            x = random.randint(radius+OFFSET, width-radius-OFFSET)
+            y = random.randint(radius+OFFSET, height-radius-OFFSET)
 
             for bubble in self.bubbles:
-                if math.sqrt((bubble.x-x)**2 + (bubble.y-y)**2) > (2*radius + OFFSET):
-                    return x, y
+                distance.append(math.sqrt(((x-bubble.x)**2) + ((y-bubble.y)**2)))
+
+            if min(distance) > (2*radius + OFFSET):
+                far = True
         
         return x, y
 
     def random_trajectory(self):
-        for bubble in self.bubbles:            
+        for bubble in self.bubbles:
+            if bubble.check_board_collision():
+                bubble.board_collision()
+            elif self.have_collision(bubble):
+                bubble.elastic_collision(self.take_the_nearest(bubble))
+
             bubble.move()
             bubble.show()
-
-    # def random_trajectory(self):
-    #     for bubble in self.bubbles:
-    #         is_nearest = False
-    #         if bubble.check_board_collision():
-    #             bubble.board_collision()
-            
-    #         for nearest in self.bubbles:
-    #             if math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)) <= (bubble.radius + nearest.radius):
-    #                 is_nearest = True
-            
-    #         if is_nearest and bubble.check_collision():
-    #             bubble.elastic_collision(self.take_the_nearest(bubble))
-            
-    #         bubble.move()
-    #         bubble.show()
 
     # def circular_trajectory(self, TRAJETORY_RADIUS):
     #     self.bubbles[0].move_circular()
@@ -103,6 +94,25 @@ class Play:
     #     self.bubbles[0].move_square()
     #     self.bubbles[0].show()
 
+    def have_collision(self, bubble):
+        OFFSET = 2
+
+        newx = bubble.x + bubble.v[0]
+        newy = bubble.y + bubble.v[1]
+
+        for nearest in self.bubbles:
+            if math.sqrt(((newx-nearest.x)**2)+((newy-nearest.y)**2)) <= (bubble.radius + nearest.radius + OFFSET):
+                return bubble.check_collision()
+        return False
+
+    def take_the_nearest(self, bubble):
+        distance = []
+
+        for nearest in self.bubbles:
+            if nearest != bubble:
+                distance.append(math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)))
+
+        return self.bubbles[distance.index(min(distance))]
 
     def show(self):
         self.surface.fill(self.surface_color)

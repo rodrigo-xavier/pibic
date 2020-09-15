@@ -24,12 +24,17 @@ class Bubbles(ABC):
         self.radius = kwargs['bubbles_radius'] # Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
         self.width = kwargs['width']
         self.height = kwargs['height']
+
+        self.v = np.array([random.random(), random.random()])
+        self.m = random.random()
+        # self.radius = int(self.m*kwargs['bubbles_radius']) # Nesse caso, o raio sera o raio do circulo que engloba toda a bolha
         self.x = kwargs['x']
         self.y = kwargs['y']
-        self.w = math.sqrt(2*(kwargs['bubbles_radius']**2)) # Largura
-        self.z = math.sqrt(2*(kwargs['bubbles_radius']**2)) # Comprimento
-        self.m = random.random()
-        self.v = np.array([random.random(), random.random()])
+        self.w = math.sqrt(2*(self.radius**2)) # Largura
+        self.z = math.sqrt(2*(self.radius**2)) # Comprimento
+
+        self.board_collision_x = False
+        self.board_collision_y = False
 
 
     # https://pt.wikipedia.org/wiki/Colis%C3%A3o_el%C3%A1stica#:~:text=Em%20f%C3%ADsica%2C%20uma%20colis%C3%A3o%20el%C3%A1stica,deforma%C3%A7%C3%B5es%20permanentes%20durante%20o%20impacto.
@@ -43,6 +48,20 @@ class Bubbles(ABC):
 
         self.v = ((v1i*(m1-m2)) + (2*v2i*m2)) / (m1 + m2)
         bubble.v = ((v2i*(m2-m1)) + (2*v1i*m1)) / (m1 + m2)
+    
+    def board_collision(self):
+        if self.board_collision_x:
+            self.v[0] *= -1
+            self.x += self.v[0]
+            self.board_collision_x = False
+        if self.board_collision_y:
+            self.v[1] *= -1
+            self.y += self.v[1]
+            self.board_collision_y = False
+    
+    def move(self):
+        self.x += self.v[0]
+        self.y += self.v[1]
     
     def move_circular(self):
         if self.ang_idx == self.n_angles:
@@ -66,20 +85,6 @@ class Bubbles(ABC):
             self.y = self.y - 1
         elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
             self.x = self.x + 1
-    
-    # Tremenda de uma gambiarra (Nao faca em casa)
-    def set_list_of_bubbles(self, bubbles, bubble_index):
-        self.list_of_bubbles = bubbles
-        self.bubble_index = bubble_index
-
-    def take_the_nearest(self, bubble):
-        distance = []
-
-        for nearest in self.list_of_bubbles:
-            if nearest != bubble:
-                distance.append(math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)))
-
-        return self.list_of_bubbles[distance.index(min(distance))]
 
     def show_pixel(self, x, y):
         pygame.draw.circle(self.surface, (255,0,0), (int(x),int(y)), 1)
