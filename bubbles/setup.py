@@ -5,6 +5,10 @@ import random, math, sys
 from play import Play
 
 
+# Database Location
+IMG_PATH = "../../.database/pibic/pygame/img/"
+NPZ_PATH = "../../.database/pibic/pygame/npz/"
+
 # Configurations
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
@@ -37,6 +41,8 @@ def run(bubbles):
 pygame.init()
 
 bubbles = Play(
+    IMG_PATH, 
+    NPZ_PATH,
     SURFACE_COLOR,
     FPS,
     CIRCLE_BUBBLES,

@@ -10,16 +10,14 @@ from square import Square
 import math, random
 
 
-IMG_PATH = "../../.database/pibic/pygame/img/"
-NPZ_PATH = "../../.database/pibic/pygame/npz/"
-
-
 class Play:
     bubbles = []
     tensor = []
 
-    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, TRAJECTORY='random', TRAJECTORY_RADIUS=25):
+    def __init__(self, IMG_PATH, NPZ_PATH, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, TRAJECTORY='random', TRAJECTORY_RADIUS=25):
         
+        self.img_path = IMG_PATH
+        self.npz_path = NPZ_PATH
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
         self.fps = FPS
@@ -133,21 +131,21 @@ class Play:
         pygame.time.Clock().tick(self.fps)
     
     def save(self, n):
-        file = IMG_PATH + str(n) + '.png'
+        file = self.img_path + str(n) + '.png'
         pygame.image.save(self.surface, file)
 
     def img2npz(self):
         # from utils import show_array_as_img
-        for f in os.listdir(IMG_PATH):
+        for f in os.listdir(self.img_path):
             if f.find(".png") != -1:
-                img = self.img_processing("{}/{}".format(IMG_PATH, f))
+                img = self.img_processing("{}/{}".format(self.img_path, f))
                 # show_array_as_img(img, 'gray')
                 self.tensor.append(img)
 
         apart = int(len(self.tensor)*0.8)
 
-        np.savez_compressed(NPZ_PATH + "bubbles_train.npz", self.tensor[:apart])
-        np.savez_compressed(NPZ_PATH + "bubbles_test.npz", self.tensor[apart:])
+        np.savez_compressed(self.npz_path + "bubbles_train.npz", self.tensor[:apart])
+        np.savez_compressed(self.npz_path + "bubbles_test.npz", self.tensor[apart:])
     
     def img_processing(self, img_path):
         img = cv2.imread(img_path, 0) # Convert to grayscale
