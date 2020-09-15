@@ -2,22 +2,28 @@ import pygame
 from pygame.locals import *
 
 import random, math, sys
-from play import Play
+from game import BubblesGame
+from data import AIData
+import copy
 
 
-# Database Location
+################# Database Location #################
+
 IMG_PATH = "../../.database/pibic/pygame/img/"
 NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
-# Configurations
+################# Configurations #################
+
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 500, 500
-FPS = 100
-NUMBER_OF_DATA = 200
+FPS = 0
+NUMBER_OF_DATA = 20000
 BUBBLES_RADIUS = 25
 CIRCLE_BUBBLES = 1
 SQUARE_BUBBLES = 0
+
+################# Trajectory #################
 
 # TRAJECTORY = 'random'
 TRAJECTORY = 'circular'
@@ -26,23 +32,25 @@ TRAJECTORY_RADIUS = 125
 
 
 
+
+################# RUN #################
+
 def run(bubbles):
-    # for i in range(0, NUMBER_OF_DATA):
-    while True:
+    if TRAJECTORY != 'random':
+        FRAMES_PER_VOLTA = bubbles.find_frames_per_turn()
+        print(FRAMES_PER_VOLTA)
+
+    for i in range(0, NUMBER_OF_DATA):
+        # print(i)
         bubbles.close()
         bubbles.show()
         # bubbles.save(i)
-    # bubbles.img2npz()
-    pygame.quit(); sys.exit()
 
+################# Game #################
 
-
-# Init Game
 pygame.init()
 
-bubbles = Play(
-    IMG_PATH, 
-    NPZ_PATH,
+bubbles = BubblesGame(
     SURFACE_COLOR,
     FPS,
     CIRCLE_BUBBLES,
@@ -56,3 +64,16 @@ bubbles = Play(
 )
 
 run(bubbles)
+
+pygame.quit(); sys.exit()
+
+
+
+
+################# Prepare Data for AI #################
+
+# data = AIData(
+#     IMG_PATH, 
+#     NPZ_PATH,
+# )
+# data.img2npz()

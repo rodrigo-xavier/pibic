@@ -1,23 +1,16 @@
 import pygame
 from pygame.locals import *
-
 import sys
-import cv2
-import numpy as np
-import os
 from circle import Circle
 from square import Square
 import math, random
 
 
-class Play:
+class BubblesGame:
     bubbles = []
-    tensor = []
 
-    def __init__(self, IMG_PATH, NPZ_PATH, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, TRAJECTORY='random', TRAJECTORY_RADIUS=25):
+    def __init__(self, SURFACE_COLOR=(0,0,0), FPS=60, CIRCLE_BUBBLES=1, SQUARE_BUBBLES=1, BUBBLES_COLOR=(255,255,255), BUBBLES_RADIUS=1, WIDTH=50, HEIGHT=50, TRAJECTORY='random', TRAJECTORY_RADIUS=25):
         
-        self.img_path = IMG_PATH
-        self.npz_path = NPZ_PATH
         self.surface = pygame.display.set_mode((WIDTH,HEIGHT))
         self.surface_color = SURFACE_COLOR
         self.fps = FPS
@@ -96,6 +89,34 @@ class Play:
     def square_trajectory(self):
         self.bubbles[0].move_square()
         self.bubbles[0].show()
+    
+    def find_frames_per_turn(self):
+        counter = 0
+        turn = False
+        first = True
+
+        while not turn:
+            self.surface.fill(self.surface_color)
+
+            if self.trajectory == 'circular':
+                self.circular_trajectory()
+            elif self.trajectory == 'square':
+                self.square_trajectory()
+            
+            counter += 1
+
+            if first:
+                x = self.bubbles[0].x
+                y = self.bubbles[0].y
+                first = False
+            elif (abs(x - self.bubbles[0].x) < 0.1) and (abs(y - self.bubbles[0].y) < 0.1):
+                turn = True
+
+            pygame.display.flip()
+        
+        return counter
+
+        
 
     def have_collision(self, bubble):
         OFFSET = 3
@@ -134,30 +155,8 @@ class Play:
         file = self.img_path + str(n) + '.png'
         pygame.image.save(self.surface, file)
 
-    def img2npz(self):
-        # from utils import show_array_as_img
-        for f in os.listdir(self.img_path):
-            if f.find(".png") != -1:
-                img = self.img_processing("{}/{}".format(self.img_path, f))
-                # show_array_as_img(img, 'gray')
-                self.tensor.append(img)
-
-        apart = int(len(self.tensor)*0.8)
-
-        np.savez_compressed(self.npz_path + "bubbles_train.npz", self.tensor[:apart])
-        np.savez_compressed(self.npz_path + "bubbles_test.npz", self.tensor[apart:])
-    
-    def img_processing(self, img_path):
-        img = cv2.imread(img_path, 0) # Convert to grayscale
-        img = cv2.resize(img, (self.width, self.height))
-        img = img.astype('float32')
-        img /= 255
-        return img
-
     def close(self):
         keystate = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == QUIT or keystate[K_ESCAPE]:
                 pygame.quit(); sys.exit()
-
-
