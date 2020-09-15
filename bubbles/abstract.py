@@ -71,7 +71,7 @@ class Bubbles(ABC):
             self.n_loops = self.n_loops + 1
 
         x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-        y_center = self.tragetory_radius * math.sin(self.angles[self.ang_idx])
+        y_center = - self.tragetory_radius * math.sin(self.angles[self.ang_idx])
 
         self.ang_idx = self.ang_idx + 1
 
@@ -79,14 +79,16 @@ class Bubbles(ABC):
         self.y = self.CIRCULAR_CENTER[1] + y_center
     
     def move_square(self):
-        if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.y = self.y + 1
-        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.x = self.x - 1
-        elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.y = self.y - 1
-        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.x = self.x + 1
+        tragetory_step = self.tragetory_radius/15
+        
+        if self.x >= (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+            self.y = self.y - tragetory_step
+        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+            self.x = self.x - tragetory_step
+        elif self.x <= (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+            self.y = self.y + tragetory_step
+        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+            self.x = self.x + tragetory_step
 
     def show_pixel(self, x, y):
         pygame.draw.circle(self.surface, (255,0,0), (int(x),int(y)), 1)
