@@ -52,6 +52,8 @@ class Play:
                     y=y,
                 )
             )
+        for bubble_index,bubble in enumerate(self.bubbles):
+            bubble.set_list_of_bubbles(self.bubbles, bubble_index)
 
     def build_far(self, radius, width, height):
         OFFSET = 10
@@ -73,20 +75,25 @@ class Play:
         return x, y
 
     def random_trajectory(self):
-        for bubble in self.bubbles:
-            is_nearest = False
-            if bubble.check_board_collision():
-                bubble.board_collision()
-            
-            for nearest in self.bubbles:
-                if math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)) <= (bubble.radius + nearest.radius):
-                    is_nearest = True
-            
-            if is_nearest and bubble.check_collision():
-                bubble.elastic_collision(self.take_the_nearest(bubble))
-            
+        for bubble in self.bubbles:            
             bubble.move()
             bubble.show()
+
+    # def random_trajectory(self):
+    #     for bubble in self.bubbles:
+    #         is_nearest = False
+    #         if bubble.check_board_collision():
+    #             bubble.board_collision()
+            
+    #         for nearest in self.bubbles:
+    #             if math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)) <= (bubble.radius + nearest.radius):
+    #                 is_nearest = True
+            
+    #         if is_nearest and bubble.check_collision():
+    #             bubble.elastic_collision(self.take_the_nearest(bubble))
+            
+    #         bubble.move()
+    #         bubble.show()
 
     # def circular_trajectory(self, TRAJETORY_RADIUS):
     #     self.bubbles[0].move_circular()
@@ -96,14 +103,6 @@ class Play:
     #     self.bubbles[0].move_square()
     #     self.bubbles[0].show()
 
-    def take_the_nearest(self, bubble):
-        distance = []
-
-        for nearest in self.bubbles:
-            if nearest != bubble:
-                distance.append(math.sqrt(((bubble.x-nearest.x)**2)+((bubble.y-nearest.y)**2)))
-
-        return self.bubbles[distance.index(min(distance))]
 
     def show(self):
         self.surface.fill(self.surface_color)
