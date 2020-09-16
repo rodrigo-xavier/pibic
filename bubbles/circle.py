@@ -17,15 +17,15 @@ class Circle(Bubbles):
 
         if self.trajectory != 'random':
             self.CIRCULAR_CENTER = (int(self.width/2), int(self.height/2))
-            self.x = self.CIRCULAR_CENTER[0] +  int(self.CIRCULAR_CENTER[0]/2)
+            self.x = self.CIRCULAR_CENTER[0] +  int( self.trajectory_radius)
             self.y = self.CIRCULAR_CENTER[1]
         
             self.ang_idx = 0
 
-            self.angles = np.linspace(0, 2*np.pi, self.trajectory_radius * 8)
+            self.angles = np.linspace(0, 2*np.pi, 120, endpoint=True)
             self.n_loops = 0
             self.tragetory_radius = self.trajectory_radius
-            self.n_angles = self.trajectory_radius * 8
+            self.n_angles = len(self.angles) - 1
 
     def check_collision(self):
         for theta in range(0, 360):

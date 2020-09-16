@@ -11,15 +11,17 @@ from data import AIData
 
 ################# Database Location #################
 
-IMG_PATH = "../../.database/pibic/pygame/img/"
-NPZ_PATH = "../../.database/pibic/pygame/npz/"
+# IMG_PATH = "../../.database/pibic/pygame/img/"
+# NPZ_PATH = "../../.database/pibic/pygame/npz/"
+IMG_PATH = "../../database/img/"
+NPZ_PATH = "../../database/npz/"
 
 ################# Workflow #################
 
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 500, 500
-FPS = 0
+FPS = 60
 NUMBER_OF_FRAMES = 1000
 BUBBLES_RADIUS = 25
 CIRCLE_BUBBLES = 1
@@ -27,47 +29,55 @@ SQUARE_BUBBLES = 0
 
 ################# Trajectory #################
 
-TRAJECTORY_RADIUS = 125
+TRAJECTORY_RADIUS = 135
 IMGS_PER_LAP_APPROXIMATELY = 120
-NUMBER_OF_LAPS = 1
+LAPS = 1
 
 ################# Select Trajectory #################
 
 # TRAJECTORY = 'random'
+<<<<<<< HEAD
+# TRAJECTORY = 'circular'
+TRAJECTORY = 'square'
+=======
 TRAJECTORY = 'circular'
 # TRAJECTORY = 'square'
+>>>>>>> master
 SAVE = True
 NPZ = True
 
 
 ####################################### GAMESPACE #######################################
 
-
+# 120 == Frames per lap
 def run(bubbles):
     data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT, CIRCLE_BUBBLES, SQUARE_BUBBLES)
     data.reset_folder()
 
-    imgs_per_lap = 0
-    frames = NUMBER_OF_FRAMES
-
     if TRAJECTORY != 'random':
-        old_frames_per_lap = bubbles.find_frames_per_lap()
-        new_frames_per_lap = int(old_frames_per_lap / IMGS_PER_LAP_APPROXIMATELY)
-        imgs_per_lap = int(old_frames_per_lap/new_frames_per_lap) - 1
-
-        frames = old_frames_per_lap*NUMBER_OF_LAPS
+        frames = LAPS * 120
+    else:
+        frames = NUMBER_OF_FRAMES
 
     for i in range(1, frames):
         bubbles.close()
         bubbles.show()
 
-        if SAVE and TRAJECTORY != 'random' and i%new_frames_per_lap == 0:
-            bubbles.save(int(i/new_frames_per_lap), IMG_PATH)
+        bubbles.save(int(i), IMG_PATH)
+        '''if SAVE and TRAJECTORY != 'random' and i % 120 == 0 and LAPS % 5 == 0:
+            if i >= 1 and i <= 120:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 150 and i <= 270:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 300 and i <= 420:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 450 and i <= 570:
+                bubbles.save(int(i / 120), IMG_PATH)
         elif SAVE and TRAJECTORY == 'random':
-            bubbles.save(i, IMG_PATH)
+            bubbles.save(i, IMG_PATH)'''
     
     if NPZ:
-        data.img2npz(imgs_per_lap)
+        data.img2npz()
 
 ################# Init #################
 

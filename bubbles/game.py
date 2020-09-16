@@ -89,32 +89,6 @@ class BubblesGame:
     def square_trajectory(self):
         self.bubbles[0].move_square()
         self.bubbles[0].show()
-    
-    def find_frames_per_lap(self):
-        counter = 0
-        turn = False
-        first = True
-
-        while not turn:
-            self.surface.fill(self.surface_color)
-
-            if self.trajectory == 'circular':
-                self.circular_trajectory()
-            elif self.trajectory == 'square':
-                self.square_trajectory()
-            
-            counter += 1
-
-            if first:
-                x = self.bubbles[0].x
-                y = self.bubbles[0].y
-                first = False
-            elif (abs(x - self.bubbles[0].x) < 0.1) and (abs(y - self.bubbles[0].y) < 0.1):
-                turn = True
-
-            pygame.display.flip()
-        
-        return counter
 
     def have_collision(self, bubble):
         OFFSET = 3
@@ -158,3 +132,29 @@ class BubblesGame:
         for event in pygame.event.get():
             if event.type == QUIT or keystate[K_ESCAPE]:
                 pygame.quit(); sys.exit()
+        
+    def find_frames_per_lap(self):
+        counter = 0
+        turn = False
+        first = True
+
+        while not turn:
+            self.surface.fill(self.surface_color)
+
+            if self.trajectory == 'circular':
+                self.circular_trajectory()
+            elif self.trajectory == 'square':
+                self.square_trajectory()
+            
+            counter += 1
+
+            if first:
+                x = self.bubbles[0].x
+                y = self.bubbles[0].y
+                first = False
+            elif (abs(x - self.bubbles[0].x) < 0.1) and (abs(y - self.bubbles[0].y) < 0.1):
+                turn = True
+
+            pygame.display.flip()
+        
+        return counter

@@ -28,7 +28,7 @@ class AIData:
         except OSError:
             print ("Creation of the directory failed")
 
-    def img2npz(self, imgs_per_lap):
+    def img2npz(self):
         counter = 0
 
         if self.trajectory == 'random':
@@ -52,7 +52,7 @@ class AIData:
                     img = self.img_processing("{}/{}".format(self.img_path, f))
                     self.tensor.append(img)
 
-                if counter % imgs_per_lap == 0:
+                if counter % 120 == 0:
                     if self.circle_bubbles != 0:
                         np.savez_compressed(self.npz_path + self.trajectory + "_" + "bola" + "_" + str(int(counter/120)) + ".npz", self.tensor)
                     if self.square_bubbles != 0:
