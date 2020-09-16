@@ -11,15 +11,17 @@ from data import AIData
 
 ################# Database Location #################
 
-IMG_PATH = "../../.database/pibic/pygame/img/"
-NPZ_PATH = "../../.database/pibic/pygame/npz/"
+# IMG_PATH = "../../.database/pibic/pygame/img/"
+# NPZ_PATH = "../../.database/pibic/pygame/npz/"
+IMG_PATH = "../../database/img/"
+NPZ_PATH = "../../database/npz/"
 
 ################# Workflow #################
 
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 500, 500
-FPS = 0
+FPS = 60
 NUMBER_OF_FRAMES = 1000
 BUBBLES_RADIUS = 25
 CIRCLE_BUBBLES = 1
@@ -27,15 +29,15 @@ SQUARE_BUBBLES = 0
 
 ################# Trajectory #################
 
-TRAJECTORY_RADIUS = 125
+TRAJECTORY_RADIUS = 135
 IMGS_PER_LAP_APPROXIMATELY = 120
-LAPS = 5
+LAPS = 1
 
 ################# Select Trajectory #################
 
-TRAJECTORY = 'random'
+# TRAJECTORY = 'random'
 # TRAJECTORY = 'circular'
-# TRAJECTORY = 'square'
+TRAJECTORY = 'square'
 SAVE = True
 NPZ = True
 
@@ -56,7 +58,8 @@ def run(bubbles):
         bubbles.close()
         bubbles.show()
 
-        if SAVE and TRAJECTORY != 'random' and i % 120 == 0 and LAPS % 5 == 0:
+        bubbles.save(int(i), IMG_PATH)
+        '''if SAVE and TRAJECTORY != 'random' and i % 120 == 0 and LAPS % 5 == 0:
             if i >= 1 and i <= 120:
                 bubbles.save(int(i / 120), IMG_PATH)
             if i >= 150 and i <= 270:
@@ -66,7 +69,7 @@ def run(bubbles):
             if i >= 450 and i <= 570:
                 bubbles.save(int(i / 120), IMG_PATH)
         elif SAVE and TRAJECTORY == 'random':
-            bubbles.save(i, IMG_PATH)
+            bubbles.save(i, IMG_PATH)'''
     
     if NPZ:
         data.img2npz()

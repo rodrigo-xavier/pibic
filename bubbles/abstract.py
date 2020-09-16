@@ -79,14 +79,25 @@ class Bubbles(ABC):
         self.y = self.CIRCULAR_CENTER[1] + y_center
     
     def move_square(self):
-        if self.x == (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y < self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.y = self.y + 1
-        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] + self.tragetory_radius):
-            self.x = self.x - 1
-        elif self.x == (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y > (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.y = self.y - 1
-        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y == (self.CIRCULAR_CENTER[0] - self.tragetory_radius):
-            self.x = self.x + 1
+        # 120 frames para uma volta
+        # 1 quadrado tem 4 lados e cada lado está dividido em 2
+        # cada tragetory_radius, no quadrado, representa um traço 
+        #   3__2
+        # 4 |  | 1
+        # 5 |__| 8
+        #   6  7
+        # Então, 120/(4*2) = 15
+
+        tragetory_step = self.tragetory_radius/15
+        
+        if self.x >= (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+            self.y = self.y - tragetory_step
+        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+            self.x = self.x - tragetory_step
+        elif self.x <= (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+            self.y = self.y + tragetory_step
+        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+            self.x = self.x + tragetory_step
 
     def show_pixel(self, x, y):
         pygame.draw.circle(self.surface, (255,0,0), (int(x),int(y)), 1)
