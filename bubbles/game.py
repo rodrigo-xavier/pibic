@@ -90,7 +90,7 @@ class BubblesGame:
         self.bubbles[0].move_square()
         self.bubbles[0].show()
     
-    def find_frames_per_turn(self):
+    def find_frames_per_lap(self):
         counter = 0
         turn = False
         first = True
@@ -151,8 +151,8 @@ class BubblesGame:
         pygame.display.flip()
         pygame.time.Clock().tick(self.fps)
     
-    def save(self, n):
-        file = self.img_path + str(n) + '.png'
+    def save(self, n, img_path):
+        file = img_path + str(n) + '.png'
         pygame.image.save(self.surface, file)
 
     def close(self):
