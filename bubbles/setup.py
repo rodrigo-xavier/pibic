@@ -22,7 +22,7 @@ WIDTH, HEIGHT = 500, 500
 FPS = 0
 NUMBER_OF_FRAMES = 1000
 BUBBLES_RADIUS = 25
-CIRCLE_BUBBLES = 6
+CIRCLE_BUBBLES = 1
 SQUARE_BUBBLES = 0
 
 ################# Trajectory #################
@@ -33,8 +33,8 @@ NUMBER_OF_LAPS = 1
 
 ################# Select Trajectory #################
 
-TRAJECTORY = 'random'
-# TRAJECTORY = 'circular'
+# TRAJECTORY = 'random'
+TRAJECTORY = 'circular'
 # TRAJECTORY = 'square'
 SAVE = True
 NPZ = True
@@ -44,7 +44,7 @@ NPZ = True
 
 
 def run(bubbles):
-    data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT)
+    data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT, CIRCLE_BUBBLES, SQUARE_BUBBLES)
     data.reset_folder()
 
     imgs_per_lap = 0
