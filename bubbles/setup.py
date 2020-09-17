@@ -56,8 +56,15 @@ def run(bubbles):
         bubbles.close()
         bubbles.show()
 
-        if SAVE and TRAJECTORY != 'random' and i % 120 == 0:
-            bubbles.save(int(i / 120), IMG_PATH)
+        if SAVE and TRAJECTORY != 'random' and i % 120 == 0 and LAPS % 5 == 0:
+            if i >= 1 and i <= 120:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 150 and i <= 270:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 300 and i <= 420:
+                bubbles.save(int(i / 120), IMG_PATH)
+            if i >= 450 and i <= 570:
+                bubbles.save(int(i / 120), IMG_PATH)
         elif SAVE and TRAJECTORY == 'random':
             bubbles.save(i, IMG_PATH)
     
