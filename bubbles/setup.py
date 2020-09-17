@@ -36,8 +36,13 @@ LAPS = 1
 ################# Select Trajectory #################
 
 # TRAJECTORY = 'random'
+<<<<<<< HEAD
 # TRAJECTORY = 'circular'
 TRAJECTORY = 'square'
+=======
+TRAJECTORY = 'circular'
+# TRAJECTORY = 'square'
+>>>>>>> master
 SAVE = True
 NPZ = True
 

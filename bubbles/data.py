@@ -19,12 +19,14 @@ class AIData:
     def reset_folder(self):
         try:
             shutil.rmtree(self.img_path)
+            shutil.rmtree(self.npz_path)
         except OSError as e:
-            print("Error: %s : %s" % (self.img_path, e.strerror))
+            print("Error: %s" % (e.strerror))
         try:
             os.mkdir(self.img_path)
+            os.mkdir(self.npz_path)
         except OSError:
-            print ("Creation of the directory %s failed" % self.img_path)
+            print ("Creation of the directory failed")
 
     def img2npz(self):
         counter = 0
@@ -52,9 +54,9 @@ class AIData:
 
                 if counter % 120 == 0:
                     if self.circle_bubbles != 0:
-                        np.savez_compressed(self.npz_path + self.trajectory + "_" + "bola" + str(int(counter/120)) + ".npz", self.tensor)
+                        np.savez_compressed(self.npz_path + self.trajectory + "_" + "bola" + "_" + str(int(counter/120)) + ".npz", self.tensor)
                     if self.square_bubbles != 0:
-                        np.savez_compressed(self.npz_path + self.trajectory + "_" + "quadrado" + str(int(counter/120)) + ".npz", self.tensor)
+                        np.savez_compressed(self.npz_path + self.trajectory + "_" + "quadrado" + "_" + str(int(counter/120)) + ".npz", self.tensor)
 
     def img_processing(self, img_path):
         img = cv2.imread(img_path, 0) # Convert to grayscale

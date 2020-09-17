@@ -3,6 +3,8 @@ import tensorflow as tf
 import tensorflow.keras.layers as layers
 import matplotlib.pyplot as plt
 import math
+import os
+
 
 
 WIDTH, HEIGHT = 50, 50
@@ -44,23 +46,27 @@ class BubblesClassifier():
 
     
     def prepare_data(self):
-        bubbles = np.load(NPZ_PATH+"bubbles.npz")
-        bubbles_test = np.load(TEST_NPZ_PATH+"bubbles.npz")
-
-        _bubbles = bubbles.f.arr_0
-        _bubbles_test = bubbles_test.f.arr_0
-
-        self.input = _bubbles
-        self.input_test = _bubbles_test
+        n = len(os.listdir(NPZ_PATH))
         
-        squares = np.zeros((int(_bubbles.shape[0]/2),2), dtype=int)
-        circles = np.ones((int(_bubbles.shape[0]/2),2), dtype=int)
+        for f in os.listdir(NPZ_PATH):
 
-        squares[:, [-1]] = 1
-        circles[:, [-1]] = 0
+            file_name = f.split('_')
+            if 'circle' in file_name:
+                np.load(f)
 
-        self.output = np.append(squares, circles, axis=0)
-        self.output_test = np.append(squares, circles, axis=0)
+            bubbles = np.load(NPZ_PATH+"bubbles.npz")
+
+            _bubbles = bubbles.f.arr_0
+
+            self.input = _bubbles
+            
+            squares = np.zeros((int(_bubbles.shape[0]/2),2), dtype=int)
+            circles = np.ones((int(_bubbles.shape[0]/2),2), dtype=int)
+
+            squares[:, [-1]] = 1
+            circles[:, [-1]] = 0
+
+            self.output = np.append(squares, circles, axis=0)
 
 
     def train(self, epochs, batch_size):
