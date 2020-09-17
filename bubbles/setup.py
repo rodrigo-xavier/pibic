@@ -29,7 +29,7 @@ SQUARE_BUBBLES = 0
 
 TRAJECTORY_RADIUS = 125
 IMGS_PER_LAP_APPROXIMATELY = 120
-NUMBER_OF_LAPS = 1
+LAPS = 1
 
 ################# Select Trajectory #################
 
@@ -42,32 +42,27 @@ NPZ = True
 
 ####################################### GAMESPACE #######################################
 
-
+# 120 == Frames per lap
 def run(bubbles):
     data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT)
     data.reset_folder()
 
-    imgs_per_lap = 0
-    frames = NUMBER_OF_FRAMES
-
     if TRAJECTORY != 'random':
-        old_frames_per_lap = bubbles.find_frames_per_lap()
-        new_frames_per_lap = int(old_frames_per_lap / IMGS_PER_LAP_APPROXIMATELY)
-        imgs_per_lap = int(old_frames_per_lap/new_frames_per_lap) - 1
-
-        frames = old_frames_per_lap*NUMBER_OF_LAPS
+        frames = LAPS * 120
+    else:
+        frames = NUMBER_OF_FRAMES
 
     for i in range(1, frames):
         bubbles.close()
         bubbles.show()
 
-        if SAVE and TRAJECTORY != 'random' and i%new_frames_per_lap == 0:
-            bubbles.save(int(i/new_frames_per_lap), IMG_PATH)
+        if SAVE and TRAJECTORY != 'random' and i % 120 == 0:
+            bubbles.save(int(i / 120), IMG_PATH)
         elif SAVE and TRAJECTORY == 'random':
             bubbles.save(i, IMG_PATH)
     
     if NPZ:
-        data.img2npz(imgs_per_lap)
+        data.img2npz()
 
 ################# Init #################
 

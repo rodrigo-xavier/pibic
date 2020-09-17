@@ -23,7 +23,7 @@ class AIData:
         except OSError:
             print ("Creation of the directory %s failed" % self.img_path)
 
-    def img2npz(self, imgs_per_lap):
+    def img2npz(self):
         counter = 0
 
         if self.trajectory == 'random':
@@ -47,8 +47,8 @@ class AIData:
                     img = self.img_processing("{}/{}".format(self.img_path, f))
                     self.tensor.append(img)
 
-                if counter % imgs_per_lap == 0:
-                    np.savez_compressed(self.npz_path + self.trajectory + "_" + str(int(counter/imgs_per_lap)) + ".npz", self.tensor)
+                if counter % 120 == 0:
+                    np.savez_compressed(self.npz_path + self.trajectory + "_" + str(int(counter/120)) + ".npz", self.tensor)
 
     def img_processing(self, img_path):
         img = cv2.imread(img_path, 0) # Convert to grayscale
