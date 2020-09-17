@@ -116,8 +116,6 @@ class BubblesGame:
         
         return counter
 
-        
-
     def have_collision(self, bubble):
         OFFSET = 3
 
