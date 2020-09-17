@@ -22,14 +22,14 @@ WIDTH, HEIGHT = 500, 500
 FPS = 0
 NUMBER_OF_FRAMES = 1000
 BUBBLES_RADIUS = 25
-CIRCLE_BUBBLES = 6
+CIRCLE_BUBBLES = 1
 SQUARE_BUBBLES = 0
 
 ################# Trajectory #################
 
 TRAJECTORY_RADIUS = 125
 IMGS_PER_LAP_APPROXIMATELY = 120
-LAPS = 1
+LAPS = 5
 
 ################# Select Trajectory #################
 
@@ -44,7 +44,7 @@ NPZ = True
 
 # 120 == Frames per lap
 def run(bubbles):
-    data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT)
+    data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT, CIRCLE_BUBBLES, SQUARE_BUBBLES)
     data.reset_folder()
 
     if TRAJECTORY != 'random':

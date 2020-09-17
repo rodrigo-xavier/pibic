@@ -6,12 +6,15 @@ import shutil
 class AIData:
     tensor = []
 
-    def __init__(self, IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT):
+    def __init__(self, IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT, CIRCLE_BUBBLES, SQUARE_BUBBLES):
         self.img_path = IMG_PATH
         self.npz_path = NPZ_PATH
         self.trajectory = TRAJECTORY
         self.width = WIDTH
         self.height = HEIGHT
+
+        self.circle_bubbles = CIRCLE_BUBBLES
+        self.square_bubbles = SQUARE_BUBBLES
     
     def reset_folder(self):
         try:
@@ -48,7 +51,10 @@ class AIData:
                     self.tensor.append(img)
 
                 if counter % 120 == 0:
-                    np.savez_compressed(self.npz_path + self.trajectory + "_" + str(int(counter/120)) + ".npz", self.tensor)
+                    if self.circle_bubbles != 0:
+                    np.savez_compressed(self.npz_path + self.trajectory + "_" + "bola" + str(int(counter/120)) + ".npz", self.tensor)
+                    if self.square_bubbles != 0:
+                    np.savez_compressed(self.npz_path + self.trajectory + "_" + "quadrado" + str(int(counter/120)) + ".npz", self.tensor)
 
     def img_processing(self, img_path):
         img = cv2.imread(img_path, 0) # Convert to grayscale
