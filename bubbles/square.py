@@ -17,7 +17,6 @@ class Square(Bubbles):
 
             self.angles = np.linspace(0, 2*np.pi, self.trajectory_radius * 8)
             self.n_loops = 0
-            self.tragetory_radius = self.trajectory_radius
             self.n_angles = self.trajectory_radius * 8
 
             # self.radius = int((math.sqrt(2*(self.side**2))) / 2) # Describes the circumference that cover the square

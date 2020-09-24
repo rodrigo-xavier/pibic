@@ -24,7 +24,6 @@ class Circle(Bubbles):
 
             self.angles = np.linspace(0, 2*np.pi, 120, endpoint=True)
             self.n_loops = 0
-            self.tragetory_radius = self.trajectory_radius
             self.n_angles = len(self.angles) - 1
 
     def check_collision(self):

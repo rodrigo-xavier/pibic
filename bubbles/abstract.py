@@ -70,8 +70,8 @@ class Bubbles(ABC):
             self.ang_idx = 0
             self.n_loops = self.n_loops + 1
 
-        x_center = self.tragetory_radius * math.cos(self.angles[self.ang_idx])
-        y_center = - self.tragetory_radius * math.sin(self.angles[self.ang_idx])
+        x_center = self.trajectory_radius * math.cos(self.angles[self.ang_idx])
+        y_center = - self.trajectory_radius * math.sin(self.angles[self.ang_idx])
 
         self.ang_idx = self.ang_idx + 1
 
@@ -81,22 +81,22 @@ class Bubbles(ABC):
     def move_square(self):
         # 120 frames para uma volta
         # 1 quadrado tem 4 lados e cada lado está dividido em 2
-        # cada tragetory_radius, no quadrado, representa um traço 
+        # cada trajectory_radius, no quadrado, representa um traço 
         #   3__2
         # 4 |  | 1
         # 5 |__| 8
         #   6  7
         # Então, 120/(4*2) = 15
 
-        tragetory_step = self.tragetory_radius/15
+        tragetory_step = self.trajectory_radius/15
         
-        if self.x >= (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+        if self.x >= (self.CIRCULAR_CENTER[0] + self.trajectory_radius) and (self.y > self.CIRCULAR_CENTER[1] - self.trajectory_radius):
             self.y = self.y - tragetory_step
-        elif self.x > (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.tragetory_radius):
+        elif self.x > (self.CIRCULAR_CENTER[0] - self.trajectory_radius) and self.y <= (self.CIRCULAR_CENTER[1] - self.trajectory_radius):
             self.x = self.x - tragetory_step
-        elif self.x <= (self.CIRCULAR_CENTER[0] - self.tragetory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+        elif self.x <= (self.CIRCULAR_CENTER[0] - self.trajectory_radius) and self.y < (self.CIRCULAR_CENTER[1] + self.trajectory_radius):
             self.y = self.y + tragetory_step
-        elif self.x < (self.CIRCULAR_CENTER[0] + self.tragetory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.tragetory_radius):
+        elif self.x < (self.CIRCULAR_CENTER[0] + self.trajectory_radius) and self.y >= (self.CIRCULAR_CENTER[1] + self.trajectory_radius):
             self.x = self.x + tragetory_step
 
     def show_pixel(self, x, y):
