@@ -64,24 +64,23 @@ def run(bubbles, loop_counter):
         bubbles.close()
         bubbles.show()
 
-        file_name = str(loop_counter) + str(i)
+        file_name = str(loop_counter) + "_" + str(i)
 
         if SAVE and TRAJECTORY != 'random' and LAPS % 5 == 0:
             if i >= 1 and i <= 120:
                 bubbles.save(file_name, IMG_PATH)
-            if i >= 150 and i <= 270:
+            if i >= 151 and i <= 270:
                 bubbles.save(file_name, IMG_PATH)
-            if i >= 300 and i <= 420:
+            if i >= 301 and i <= 420:
                 bubbles.save(file_name, IMG_PATH)
-            if i >= 450 and i <= 570:
+            if i >= 451 and i <= 570:
                 bubbles.save(file_name, IMG_PATH)
         elif SAVE and TRAJECTORY == 'random':
             bubbles.save(i, IMG_PATH)
     
     if NPZ and not INCREASE_RADIUS:
         data.img2npz()
-    elif NPZ and INCREASE_RADIUS and loop_counter == (TRAJECTORY_RADIUS-1):
-        print("here too")
+    elif NPZ and INCREASE_RADIUS and loop_counter == (TRAJECTORY_RADIUS-1): 
         data.img2npz()
 
 def build_all():

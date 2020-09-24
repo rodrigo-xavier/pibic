@@ -57,6 +57,7 @@ class AIData:
                         np.savez_compressed(self.npz_path + self.trajectory + "_" + "bola" + "_" + str(int(counter/120)) + ".npz", self.tensor)
                     if self.square_bubbles != 0:
                         np.savez_compressed(self.npz_path + self.trajectory + "_" + "quadrado" + "_" + str(int(counter/120)) + ".npz", self.tensor)
+                    self.tensor = []
 
     def img_processing(self, img_path):
         img = cv2.imread(img_path, 0) # Convert to grayscale
