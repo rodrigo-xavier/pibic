@@ -132,29 +132,25 @@ class BubblesGame:
         for event in pygame.event.get():
             if event.type == QUIT or keystate[K_ESCAPE]:
                 pygame.quit(); sys.exit()
-        
-    def find_frames_per_lap(self):
-        counter = 0
-        turn = False
-        first = True
+    
+    # 120 == Frames per lap
+    def run(self, loop_counter, img_path, frames, save):
+        if save:
+            for i in range(1, frames):
+                self.close()
+                self.show()
 
-        while not turn:
-            self.surface.fill(self.surface_color)
+                if self.trajectory != 'random':
+                    file_name = str(loop_counter) + "_" + str(i)
 
-            if self.trajectory == 'circular':
-                self.circular_trajectory()
-            elif self.trajectory == 'square':
-                self.square_trajectory()
-            
-            counter += 1
+                    # momentos da trajetoria que devem ser capturadas as imagens
+                    save_on = i >= 1 and i <= 120 or i >= 151 and i <= 270 or i >= 301 and i <= 420 or i >= 451 and i <= 570
 
-            if first:
-                x = self.bubbles[0].x
-                y = self.bubbles[0].y
-                first = False
-            elif (abs(x - self.bubbles[0].x) < 0.1) and (abs(y - self.bubbles[0].y) < 0.1):
-                turn = True
-
-            pygame.display.flip()
-        
-        return counter
+                    if save_on:
+                        self.save(file_name, img_path)
+                else:
+                    self.save(i, img_path)
+        else:
+            for i in range(1, frames):
+                self.close()
+                self.show()

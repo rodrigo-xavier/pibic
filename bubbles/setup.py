@@ -2,7 +2,6 @@ import pygame
 from pygame.locals import *
 
 import random, math, sys
-from game import BubblesGame
 from data import AIData
 
 
@@ -22,10 +21,10 @@ SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
 WIDTH, HEIGHT = 50, 50
 FPS = 0
-NUMBER_OF_FRAMES = 120
-BUBBLES_RADIUS = 2
-CIRCLE_BUBBLES = 1
-SQUARE_BUBBLES = 0
+NUMBER_OF_FRAMES = 120000
+BUBBLES_RADIUS = 3
+CIRCLE_BUBBLES = 0
+SQUARE_BUBBLES = 1
 
 ################# Trajectory #################
 
@@ -38,79 +37,47 @@ LAPS = 5
 TRAJECTORY = 'circular'
 # TRAJECTORY = 'square'
 INCREASE_RADIUS = True
-SAVE = True
-NPZ = True
+SAVE = False
+NPZ = False
 
 
 
 
 ####################################### GAMESPACE #######################################
 
-# 120 == Frames per lap
-def run(bubbles, loop_counter):
-    data = AIData(IMG_PATH, NPZ_PATH, TRAJECTORY, WIDTH, HEIGHT, CIRCLE_BUBBLES, SQUARE_BUBBLES)
 
-    if INCREASE_RADIUS and loop_counter == 1:
-        data.reset_folder()
-    elif not INCREASE_RADIUS:
-        data.reset_folder()
-
-    if TRAJECTORY != 'random':
-        frames = LAPS * 120
-    else:
-        frames = NUMBER_OF_FRAMES
-
-    for i in range(1, frames):
-        bubbles.close()
-        bubbles.show()
-
-        file_name = str(loop_counter) + "_" + str(i)
-
-        if SAVE and TRAJECTORY != 'random' and LAPS % 5 == 0:
-            if i >= 1 and i <= 120:
-                bubbles.save(file_name, IMG_PATH)
-            if i >= 151 and i <= 270:
-                bubbles.save(file_name, IMG_PATH)
-            if i >= 301 and i <= 420:
-                bubbles.save(file_name, IMG_PATH)
-            if i >= 451 and i <= 570:
-                bubbles.save(file_name, IMG_PATH)
-        elif SAVE and TRAJECTORY == 'random':
-            bubbles.save(i, IMG_PATH)
-    
-    if NPZ and not INCREASE_RADIUS:
-        data.img2npz()
-    elif NPZ and INCREASE_RADIUS and loop_counter == (TRAJECTORY_RADIUS-1): 
-        data.img2npz()
-
-def build_all():
-    bubbles = BubblesGame(
-        SURFACE_COLOR,
-        FPS,
-        CIRCLE_BUBBLES,
-        SQUARE_BUBBLES,
-        BUBBLES_COLOR,
-        BUBBLES_RADIUS,
-        WIDTH,
-        HEIGHT,
-        TRAJECTORY,
-        TRAJECTORY_RADIUS,
+def init_game():
+    data = AIData(
+        IMG_PATH=IMG_PATH,
+        NPZ_PATH=NPZ_PATH,
+        SURFACE_COLOR=SURFACE_COLOR,
+        FPS=FPS,
+        CIRCLE_BUBBLES=CIRCLE_BUBBLES,
+        SQUARE_BUBBLES=SQUARE_BUBBLES,
+        BUBBLES_COLOR=BUBBLES_COLOR,
+        BUBBLES_RADIUS=BUBBLES_RADIUS,
+        WIDTH=WIDTH,
+        HEIGHT=HEIGHT,
+        TRAJECTORY=TRAJECTORY,
+        TRAJECTORY_RADIUS=TRAJECTORY_RADIUS,
+        INCREASE_RADIUS=INCREASE_RADIUS,
     )
-    loop_counter = 0
+    data.reset_folder()
 
-    if INCREASE_RADIUS and TRAJECTORY != 'random':
-        for i in range(1, TRAJECTORY_RADIUS):
-            loop_counter+=1
-            bubbles.bubbles[0].trajectory_radius = i
-            run(bubbles, loop_counter)
+    # 120 == Frames per lap
+    if TRAJECTORY != 'random' and LAPS % 5 == 0:
+        data.play_game(LAPS * 120, SAVE)
     else:
-        bubbles.bubbles[0].trajectory_radius = TRAJECTORY_RADIUS
-        run(bubbles, loop_counter)
+        data.play_game(NUMBER_OF_FRAMES, SAVE)
+
+    if NPZ:
+        data.img2npz()   
+    
 
 ################# Init #################
 
 pygame.init()
-build_all()
+init_game()
 pygame.quit(); sys.exit()
 
 
