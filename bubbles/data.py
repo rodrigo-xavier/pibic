@@ -20,7 +20,7 @@ class AIData:
             TRAJECTORY=TRAJECTORY,
             TRAJECTORY_RADIUS=TRAJECTORY_RADIUS,
         )
-
+        
         self.img_path = IMG_PATH
         self.npz_path = NPZ_PATH
         self.trajectory = TRAJECTORY
@@ -47,14 +47,11 @@ class AIData:
     
 
     def play_game(self, frames, save):
-        print(frames)
         if self.increase_radius and self.trajectory != 'random':
             for i in range(1, self.trajectory_radius):
                 self.bubbles.bubbles[0].trajectory_radius = i
                 self.bubbles.run(i, self.img_path, frames, save)
         else:
-            print("here")
-            self.bubbles.bubbles[0].trajectory_radius = self.trajectory_radius
             self.bubbles.run(0, self.img_path, frames, save)
 
 

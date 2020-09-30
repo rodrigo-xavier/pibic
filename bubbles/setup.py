@@ -19,16 +19,16 @@ NPZ_PATH = "../../.database/pibic/pygame/npz/"
 
 SURFACE_COLOR = (0,0,0)
 BUBBLES_COLOR = (255,255,255)
-WIDTH, HEIGHT = 500, 500
+WIDTH, HEIGHT = 50, 50
 FPS = 0
 NUMBER_OF_FRAMES = 120000
-BUBBLES_RADIUS = 20
+BUBBLES_RADIUS = 3
 CIRCLE_BUBBLES = 0
 SQUARE_BUBBLES = 1
 
 ################# Trajectory #################
 
-TRAJECTORY_RADIUS = 125
+TRAJECTORY_RADIUS = 25
 LAPS = 5
 
 ################# Select Trajectory #################
@@ -36,7 +36,7 @@ LAPS = 5
 # TRAJECTORY = 'random'
 TRAJECTORY = 'circular'
 # TRAJECTORY = 'square'
-INCREASE_RADIUS = False
+INCREASE_RADIUS = True
 SAVE = False
 NPZ = False
 
@@ -64,8 +64,8 @@ def init_game():
     )
     data.reset_folder()
 
-    if TRAJECTORY != 'random':
-        print(LAPS * 120)
+    # 120 == Frames per lap
+    if TRAJECTORY != 'random' and LAPS % 5 == 0:
         data.play_game(LAPS * 120, SAVE)
     else:
         data.play_game(NUMBER_OF_FRAMES, SAVE)

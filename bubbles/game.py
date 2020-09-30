@@ -135,27 +135,22 @@ class BubblesGame:
     
     # 120 == Frames per lap
     def run(self, loop_counter, img_path, frames, save):
-        print(frames)
         if save:
             for i in range(1, frames):
                 self.close()
                 self.show()
 
-                if self.trajectory != 'random' and LAPS % 5 == 0:
+                if self.trajectory != 'random':
                     file_name = str(loop_counter) + "_" + str(i)
 
-                    if i >= 1 and i <= 120:
-                        self.save(file_name, img_path)
-                    if i >= 151 and i <= 270:
-                        self.save(file_name, img_path)
-                    if i >= 301 and i <= 420:
-                        self.save(file_name, img_path)
-                    if i >= 451 and i <= 570:
+                    # momentos da trajetoria que devem ser capturadas as imagens
+                    save_on = i >= 1 and i <= 120 or i >= 151 and i <= 270 or i >= 301 and i <= 420 or i >= 451 and i <= 570
+
+                    if save_on:
                         self.save(file_name, img_path)
                 else:
                     self.save(i, img_path)
         else:
-            print("here")
             for i in range(1, frames):
                 self.close()
                 self.show()

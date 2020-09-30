@@ -17,7 +17,7 @@ class Circle(Bubbles):
 
         if self.trajectory != 'random':
             self.CIRCULAR_CENTER = (int(self.width/2), int(self.height/2))
-            self.x = self.CIRCULAR_CENTER[0] +  int( self.trajectory_radius)
+            self.x = self.CIRCULAR_CENTER[0] + int(self.trajectory_radius)
             self.y = self.CIRCULAR_CENTER[1]
         
             self.ang_idx = 0
