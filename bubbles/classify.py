@@ -6,19 +6,19 @@ import math
 import os
 
 
-
 WIDTH, HEIGHT = 50, 50
-IMG_PATH = "../../.database/pibic/pygame/img/"
-NPZ_PATH = "../../.database/pibic/pygame/npz/"
-TEST_NPZ_PATH = "../../.database/pibic/pygame/npz_test/"
-MODEL_PATH = "../../.database/pibic/pygame/model/"
+PATH = "../../.database/pibic/pygame/"
 
 
 class BubblesClassifier():
     model = tf.keras.models.Sequential()
 
+    input_fit = {}
+    input_predict = {}
+    input_fee = 0.8
+
     ACTIONS = [0, 1]
-    MAP_ACTIONS = {0: "quadrado", 1: "circulo"}
+    MAP_ACTIONS = {"quadrado": [0, 1], "circulo": [1, 0]}
 
     input_shape = (WIDTH, HEIGHT)
     dim_input = (WIDTH)*(HEIGHT)
@@ -45,34 +45,48 @@ class BubblesClassifier():
         print(self.model.summary())
 
     
-    def prepare_data(self):
-        n = len(os.listdir(NPZ_PATH))
-        
-        for f in os.listdir(NPZ_PATH):
+    def load_data(self, *args):
+        arrays = []
 
-            file_name = f.split('_')
-            if 'circle' in file_name:
-                np.load(f)
+        self.input_fit.update({"circle": [], "square": []})
+        self.input_predict.update({"circle": [], "square": []})
 
-            bubbles = np.load(NPZ_PATH+"bubbles.npz")
+        for subpath in args:
+            path = PATH + subpath
+            n = len(os.listdir(path))
 
-            _bubbles = bubbles.f.arr_0
+            trajectory_type = subpath.split("/")[1]
 
-            self.input = _bubbles
-            
-            squares = np.zeros((int(_bubbles.shape[0]/2),2), dtype=int)
-            circles = np.ones((int(_bubbles.shape[0]/2),2), dtype=int)
+            for i, file in enumerate(os.listdir(path)):
+                if file.find(".npz") != -1:
+                    lap = np.load(path + file)
+                    arrays.append(lap.f.arr_0)
+                    
+                    if i == int(n * self.input_fee):
+                        self.input_fit[trajectory_type].append(np.concatenate(arrays))
+                    elif i == n-1:
+                        self.input_predict[trajectory_type].append(np.concatenate(arrays))
+    
+    # def build_expected_output(self):
+    #     self.input_fit['circle']
+    #     squares = np.zeros((int(_lap.shape[0]/2),2), dtype=int)
+    #     circles = np.ones((int(_lap.shape[0]/2),2), dtype=int)
 
-            squares[:, [-1]] = 1
-            circles[:, [-1]] = 0
+    #     squares[:, [-1]] = 1
+    #     circles[:, [-1]] = 0
 
-            self.output = np.append(squares, circles, axis=0)
+    #     self.output = np.append(squares, circles, axis=0)
+
+    #     print(self.input_fit.keys())
+    #     print(self.input_predict.keys())
+    #     print(len(self.input_fit['circle']))
+    #     print(len(self.input_predict['circle']))
 
 
-    def train(self, epochs, batch_size):
+    def fit(self, epochs, batch_size):
         self.history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
 
-        scores = self.model.evaluate(self.input_test, self.output_test)
+        scores = self.model.evaluate(self.input_predict, self.output_predict)
         print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
 
         self.save_model()
@@ -96,7 +110,7 @@ class BubblesClassifier():
         plt.title('model accuracy')
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
+        plt.legend(['fit', 'predict'], loc='upper left')
         plt.show()
         # summarize history for loss
         plt.plot(self.history.history['loss'])
@@ -104,23 +118,23 @@ class BubblesClassifier():
         plt.title('model loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
+        plt.legend(['fit', 'predict'], loc='upper left')
         plt.show()
 
 
     def save_model(self):
         model_json = self.model.to_json()
 
-        with open(MODEL_PATH+"model.json", "w") as json_file:
+        with open(MODEL_PATH + "model/model.json", "w") as json_file:
             json_file.write(model_json)
 
         # serialize weights to HDF5
-        self.model.save_weights(MODEL_PATH+"model.h5")
+        self.model.save_weights(MODEL_PATH + "model/model.h5")
         print("Saved model to disk")
 
 
     def load_model(self):
-        self.model = tf.keras.models.load_model(MODEL_PATH+"model.h5")
+        self.model = tf.keras.models.load_model(MODEL_PATH + "model/model.h5")
 
 
     def show_network(self):
@@ -130,13 +144,13 @@ class BubblesClassifier():
         np.random.seed(7)
 
         # load json and create model
-        json_file = open(MODEL_PATH+'model.json', 'r')
+        json_file = open(MODEL_PATH+'model/model.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         _model = tf.keras.models.model_from_json(loaded_model_json)
         
         # load weights into new model
-        _model.load_weights(MODEL_PATH+"model.h5")
+        _model.load_weights(MODEL_PATH+"model/model.h5")
         ann_viz(self.model, view=True, title="Artificial Neural network - Model Visualization")
     
     def plot_network(self):
@@ -144,14 +158,14 @@ class BubblesClassifier():
         import graphviz
         from interface import implements, Interface
 
-        path = MODEL_PATH + "model_plot.png"
+        path = MODEL_PATH + "model/model_plot.png"
         plot_model(self.model, to_file=path, show_shapes=True, show_layer_names=True)
         print("Saved network graph to disk")
 
 
 a = BubblesClassifier()
-a.prepare_data()
-a.train(epochs=300, batch_size=32)
-a.plot_network()
-a.plot_graph()
+a.load_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
+# a.fit(epochs=300, batch_size=32)
+# a.plot_network()
+# a.plot_graph()
 # a.show_network()
