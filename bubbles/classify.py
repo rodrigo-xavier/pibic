@@ -99,11 +99,8 @@ class BubblesClassifier():
 
         self.output_predict = np.append(circles, squares, axis=0)
 
-        print(self.output_fit.shape)
-        print(self.output_predict.shape)
-
     def fit(self, epochs, batch_size):
-        self.history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
+        self.history = self.model.fit(self.input_fit, self.output_fit, epochs=epochs, batch_size=batch_size)
 
         scores = self.model.evaluate(self.dict_of_predict, self.output_predict)
         print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
@@ -112,7 +109,7 @@ class BubblesClassifier():
 
 
     def predict(self, observation, reward):
-        actions = self.model.predict(x=self.input)
+        actions = self.model.predict(x=self.input_predict)
         print(actions)
 
         selected_action = np.argmax(actions)
@@ -144,16 +141,16 @@ class BubblesClassifier():
     def save_model(self):
         model_json = self.model.to_json()
 
-        with open(MODEL_PATH + "model/model.json", "w") as json_file:
+        with open(PATH + "model/model.json", "w") as json_file:
             json_file.write(model_json)
 
         # serialize weights to HDF5
-        self.model.save_weights(MODEL_PATH + "model/model.h5")
+        self.model.save_weights(PATH + "model/model.h5")
         print("Saved model to disk")
 
 
     def load_model(self):
-        self.model = tf.keras.models.load_model(MODEL_PATH + "model/model.h5")
+        self.model = tf.keras.models.load_model(PATH + "model/model.h5")
 
 
     def show_network(self):
@@ -163,13 +160,13 @@ class BubblesClassifier():
         np.random.seed(7)
 
         # load json and create model
-        json_file = open(MODEL_PATH+'model/model.json', 'r')
+        json_file = open(PATH + 'model/model.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         _model = tf.keras.models.model_from_json(loaded_model_json)
         
         # load weights into new model
-        _model.load_weights(MODEL_PATH+"model/model.h5")
+        _model.load_weights(PATH + "model/model.h5")
         ann_viz(self.model, view=True, title="Artificial Neural network - Model Visualization")
     
     def plot_network(self):
@@ -177,7 +174,7 @@ class BubblesClassifier():
         import graphviz
         from interface import implements, Interface
 
-        path = MODEL_PATH + "model/model_plot.png"
+        path = PATH + "model/model_plot.png"
         plot_model(self.model, to_file=path, show_shapes=True, show_layer_names=True)
         print("Saved network graph to disk")
 
