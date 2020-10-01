@@ -13,8 +13,6 @@ PATH = "../../.database/pibic/pygame/"
 class BubblesClassifier():
     model = tf.keras.models.Sequential()
 
-    input_fit = {}
-    input_predict = {}
     input_fee = 0.8
 
     ACTIONS = [0, 1]
@@ -47,9 +45,8 @@ class BubblesClassifier():
     
     def load_data(self, *args):
         arrays = []
-
-        self.input_fit.update({"circle": [], "square": []})
-        self.input_predict.update({"circle": [], "square": []})
+        self.dict_of_fit = {"circle": [], "square": []}
+        self.dict_of_predict = {"circle": [], "square": []}
 
         for subpath in args:
             path = PATH + subpath
@@ -63,30 +60,51 @@ class BubblesClassifier():
                     arrays.append(lap.f.arr_0)
                     
                     if i == int(n * self.input_fee):
-                        self.input_fit[trajectory_type].append(np.concatenate(arrays))
+                        self.dict_of_fit[trajectory_type].append(np.concatenate(arrays))
+                        arrays = []
                     elif i == n-1:
-                        self.input_predict[trajectory_type].append(np.concatenate(arrays))
+                        self.dict_of_predict[trajectory_type].append(np.concatenate(arrays))
+                        arrays = []
     
-    # def build_expected_output(self):
-    #     self.input_fit['circle']
-    #     squares = np.zeros((int(_lap.shape[0]/2),2), dtype=int)
-    #     circles = np.ones((int(_lap.shape[0]/2),2), dtype=int)
+    def concat_data(self):
+        circle = np.concatenate(self.dict_of_fit["circle"])
+        square = np.concatenate(self.dict_of_fit["square"])
+        self.input_fit = np.concatenate((circle, square))
 
-    #     squares[:, [-1]] = 1
-    #     circles[:, [-1]] = 0
+        del self.dict_of_fit
 
-    #     self.output = np.append(squares, circles, axis=0)
+        circle = np.concatenate(self.dict_of_predict["circle"])
+        square = np.concatenate(self.dict_of_predict["square"])
+        self.input_predict = np.concatenate((circle, square))
 
-    #     print(self.input_fit.keys())
-    #     print(self.input_predict.keys())
-    #     print(len(self.input_fit['circle']))
-    #     print(len(self.input_predict['circle']))
+        del self.dict_of_predict
+
+        print(self.input_predict.shape)
+    
+    def build_expected_output(self):
+        self.concat_data()
+        pass
+        # circles = np.ones((int(self.dict_of_fit['circle'][0].shape[0]/2),2), dtype=int)
+        # squares = np.zeros((int(self.dict_of_fit['square'][0].shape[0]/2),2), dtype=int)
+
+        # circles[:, [-1]] = 0
+        # squares[:, [-1]] = 1
+
+        # self.output = np.append(circles, squares, axis=0)
+
+        # self.output_fi
+        # self.output_precic
+
+        # print(self.dict_of_fit.keys())
+        # print(self.dict_of_predict.keys())
+        # print(len(self.dict_of_fit['circle']))
+        # print(len(self.dict_of_predict['circle']))
 
 
     def fit(self, epochs, batch_size):
         self.history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
 
-        scores = self.model.evaluate(self.input_predict, self.output_predict)
+        scores = self.model.evaluate(self.dict_of_predict, self.output_predict)
         print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
 
         self.save_model()
@@ -165,6 +183,8 @@ class BubblesClassifier():
 
 a = BubblesClassifier()
 a.load_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
+a.build_expected_output()
+# a.load_data("pack/circle/1/", "pack/square/1/")
 # a.fit(epochs=300, batch_size=32)
 # a.plot_network()
 # a.plot_graph()
