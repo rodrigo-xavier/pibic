@@ -13,6 +13,9 @@ PATH = "../../.database/pibic/pygame/"
 class BubblesClassifier():
     model = tf.keras.models.Sequential()
 
+    dict_of_fit = {}
+    dict_of_predict = {}
+
     input_fee = 0.8
 
     ACTIONS = [0, 1]
@@ -45,8 +48,8 @@ class BubblesClassifier():
     
     def load_and_prepare_data(self, *args):
         arrays = []
-        self.dict_of_fit = {"circle": [], "square": []}
-        self.dict_of_predict = {"circle": [], "square": []}
+        self.dict_of_fit.update({"circle": [], "square": []})
+        self.dict_of_predict.update({"circle": [], "square": []})
 
         for subpath in args:
             path = PATH + subpath
@@ -70,17 +73,13 @@ class BubblesClassifier():
         self.build_expected_output()
     
     def concat_data(self):
-        circle = np.concatenate(self.dict_of_fit["circle"])
-        square = np.concatenate(self.dict_of_fit["square"])
+        circle = np.concatenate((self.dict_of_fit["circle"]))
+        square = np.concatenate((self.dict_of_fit["square"]))
         self.input_fit = np.concatenate((circle, square))
 
-        del self.dict_of_fit
-
-        circle = np.concatenate(self.dict_of_predict["circle"])
-        square = np.concatenate(self.dict_of_predict["square"])
+        circle = np.concatenate((self.dict_of_predict["circle"]))
+        square = np.concatenate((self.dict_of_predict["square"]))
         self.input_predict = np.concatenate((circle, square))
-
-        del self.dict_of_predict
     
     def build_expected_output(self):
         circles = np.ones((int(self.input_fit.shape[0]/2),2), dtype=int)
