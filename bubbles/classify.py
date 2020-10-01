@@ -90,7 +90,6 @@ class BubblesClassifier():
 
         self.output_fit = np.append(circles, squares, axis=0)
 
-        self.concat_data()
         circles = np.ones((int(self.input_predict.shape[0]/2),2), dtype=int)
         squares = np.zeros((int(self.input_predict.shape[0]/2),2), dtype=int)
 
@@ -182,7 +181,7 @@ class BubblesClassifier():
 a = BubblesClassifier()
 a.load_and_prepare_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
 # a.load_data("pack/circle/1/", "pack/square/1/")
-# a.fit(epochs=300, batch_size=32)
-# a.plot_network()
-# a.plot_graph()
-# a.show_network()
+a.fit(epochs=30, batch_size=32)
+a.plot_network()
+a.plot_graph()
+a.show_network()
