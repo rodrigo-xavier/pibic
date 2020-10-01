@@ -43,7 +43,7 @@ class BubblesClassifier():
         print(self.model.summary())
 
     
-    def load_data(self, *args):
+    def load_and_prepare_data(self, *args):
         arrays = []
         self.dict_of_fit = {"circle": [], "square": []}
         self.dict_of_predict = {"circle": [], "square": []}
@@ -65,6 +65,9 @@ class BubblesClassifier():
                     elif i == n-1:
                         self.dict_of_predict[trajectory_type].append(np.concatenate(arrays))
                         arrays = []
+        
+        self.concat_data()
+        self.build_expected_output()
     
     def concat_data(self):
         circle = np.concatenate(self.dict_of_fit["circle"])
@@ -78,28 +81,27 @@ class BubblesClassifier():
         self.input_predict = np.concatenate((circle, square))
 
         del self.dict_of_predict
-
-        print(self.input_predict.shape)
     
     def build_expected_output(self):
+        circles = np.ones((int(self.input_fit.shape[0]/2),2), dtype=int)
+        squares = np.zeros((int(self.input_fit.shape[0]/2),2), dtype=int)
+
+        circles[:, [-1]] = 0
+        squares[:, [-1]] = 1
+
+        self.output_fit = np.append(circles, squares, axis=0)
+
         self.concat_data()
-        pass
-        # circles = np.ones((int(self.dict_of_fit['circle'][0].shape[0]/2),2), dtype=int)
-        # squares = np.zeros((int(self.dict_of_fit['square'][0].shape[0]/2),2), dtype=int)
+        circles = np.ones((int(self.input_predict.shape[0]/2),2), dtype=int)
+        squares = np.zeros((int(self.input_predict.shape[0]/2),2), dtype=int)
 
-        # circles[:, [-1]] = 0
-        # squares[:, [-1]] = 1
+        circles[:, [-1]] = 0
+        squares[:, [-1]] = 1
 
-        # self.output = np.append(circles, squares, axis=0)
+        self.output_predict = np.append(circles, squares, axis=0)
 
-        # self.output_fi
-        # self.output_precic
-
-        # print(self.dict_of_fit.keys())
-        # print(self.dict_of_predict.keys())
-        # print(len(self.dict_of_fit['circle']))
-        # print(len(self.dict_of_predict['circle']))
-
+        print(self.output_fit.shape)
+        print(self.output_predict.shape)
 
     def fit(self, epochs, batch_size):
         self.history = self.model.fit(self.input, self.output, epochs=epochs, batch_size=batch_size)
@@ -182,8 +184,7 @@ class BubblesClassifier():
 
 
 a = BubblesClassifier()
-a.load_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
-a.build_expected_output()
+a.load_and_prepare_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
 # a.load_data("pack/circle/1/", "pack/square/1/")
 # a.fit(epochs=300, batch_size=32)
 # a.plot_network()
