@@ -21,8 +21,9 @@ class BubblesClassifier():
     ACTIONS = [0, 1]
     MAP_ACTIONS = {"quadrado": [0, 1], "circulo": [1, 0]}
 
-    input_shape = (WIDTH, HEIGHT)
-    dim_input = (WIDTH)*(HEIGHT)
+    # input_shape = (120, WIDTH, HEIGHT)
+    input_shape = (18480, 2500)
+    dim_input = 120*(WIDTH)*(HEIGHT)
     dim_output = len(ACTIONS)
     n_hidden_layer = round(math.sqrt((dim_input*dim_output)))
 
@@ -60,6 +61,8 @@ class BubblesClassifier():
             for i, file in enumerate(os.listdir(path)):
                 if file.find(".npz") != -1:
                     lap = np.load(path + file)
+                    # redimensioned = np.reshape(lap.f.arr_0, (1, 120, 50, 50))
+                    # arrays.append(redimensioned)
                     arrays.append(lap.f.arr_0)
                     
                     if i == int(n * self.input_fee):
@@ -77,21 +80,23 @@ class BubblesClassifier():
         square = np.concatenate((self.dict_of_fit["square"]))
         self.input_fit = np.concatenate((circle, square))
 
+        print(self.input_fit.shape)
+
         circle = np.concatenate((self.dict_of_predict["circle"]))
         square = np.concatenate((self.dict_of_predict["square"]))
         self.input_predict = np.concatenate((circle, square))
     
     def build_expected_output(self):
-        circles = np.ones((int(self.input_fit.shape[0]/2),2), dtype=int)
-        squares = np.zeros((int(self.input_fit.shape[0]/2),2), dtype=int)
+        circles = np.ones((int(self.input_fit.shape[0]/(2*120)),2), dtype=int)
+        squares = np.zeros((int(self.input_fit.shape[0]/(2*120)),2), dtype=int)
 
         circles[:, [-1]] = 0
         squares[:, [-1]] = 1
 
         self.output_fit = np.append(circles, squares, axis=0)
 
-        circles = np.ones((int(self.input_predict.shape[0]/2),2), dtype=int)
-        squares = np.zeros((int(self.input_predict.shape[0]/2),2), dtype=int)
+        circles = np.ones((int(self.input_predict.shape[0]/(2*120)),2), dtype=int)
+        squares = np.zeros((int(self.input_predict.shape[0]/(2*120)),2), dtype=int)
 
         circles[:, [-1]] = 0
         squares[:, [-1]] = 1
@@ -179,8 +184,8 @@ class BubblesClassifier():
 
 
 a = BubblesClassifier()
-a.load_and_prepare_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
-# a.load_data("pack/circle/1/", "pack/square/1/")
+# a.load_and_prepare_data("pack/circle/1/", "pack/square/1/", "pack/circle/2/", "pack/square/2/")
+a.load_and_prepare_data("pack/circle/1/", "pack/square/1/")
 a.fit(epochs=30, batch_size=32)
 a.plot_network()
 a.plot_graph()
