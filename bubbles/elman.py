@@ -106,8 +106,8 @@ class BubblesClassifier():
     def fit(self, epochs, batch_size):
         self.history = self.model.fit(self.input_fit, self.output_fit, epochs=epochs, batch_size=batch_size)
 
-        # scores = self.model.evaluate(self.dict_of_predict, self.output_predict)
-        # print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
+        scores = self.model.evaluate(self.dict_of_predict, self.output_predict)
+        print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
 
         self.save_model()
 
