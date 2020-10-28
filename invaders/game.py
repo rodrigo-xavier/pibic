@@ -11,7 +11,7 @@ class Invaders():
     def __init__(self, path, match):
         self.path = path
         self.match = match
-        self.lstm = LSTM()
+        self.lstm = LSTM({'path':path})
     
     def run(self):
         for m in range(self.match):
