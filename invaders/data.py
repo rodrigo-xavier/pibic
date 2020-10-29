@@ -5,6 +5,8 @@ class DataPreProcessing():
     docstring
     """
 
+    y_min, y_max, x_min, x_max = 25, 195, 20, 140
+
     def __init__(self, **kwargs):
         self.y_min = kwargs['y_min']
         self.y_max = kwargs['y_max']
