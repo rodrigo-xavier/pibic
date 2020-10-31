@@ -1,4 +1,4 @@
-from data import DataPreProcessing
+from data import DataProcessing
 import math
 import numpy as np
 from keras.models import load_model, Sequential
@@ -13,9 +13,6 @@ class Neural():
         self.path = str(kwargs['path'] + "model")
         self.model = Sequential()        
     
-    def predict(self, data):
-        return self.model.predict(data, batch_size = 1)
-    
     def plot(self):
         pass
     
@@ -28,12 +25,23 @@ class Neural():
         print("Successfully saved network.")
 
 
-class LSTM(Neural, DataPreProcessing):
+class SimpleRNN(Neural, DataProcessing):
     """
     docstring
     """
     
     ACTIONS = [0, 1, 2, 3]
+    RESET_STATES = 5
+    EPOCHS = 10
+    BATCH_SIZE = 10
+    count_states = 0
+    list_of_probabilities = []
+    total_reward = 0
+
+    last_frame = []
+    penultimate_frame = []
+    last_action = 0
+    penultimate_action = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -63,17 +71,33 @@ class LSTM(Neural, DataPreProcessing):
         self.model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
         print("Successfully constructed networks.")
+
+    def get_mov_reward(self, reward):
+        diff = self.total_reward - reward
+        self.total_reward = reward
+
+        return diff
     
-    def train(self, observation, reward, action):
-        observation = self.gray_crop(observation)
+    def reset_states(self):
+        self.count_states += 1
+        if self.count_states >= self.RESET_STATES:
+            self.model.reset_states()
+            self.count_states = 0
+    
+    def predict(self, frame, reward):
+        reward = self.get_mov_reward(reward)
 
-        target = self.model.predict(observation, batch_size = 1)
-        targets[i, action[i]] = reward[i]
+        if reward > 0 and self.full_buffer:
+            self.reset_states()
+            history = self.model.fit(self.frame_buffer.reshape(self.get_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE)
 
-        loss = self.model.train_on_batch(observation, targets)
-        print("We had a loss equal to ", loss)
+        self.store_frame(frame)
+        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
 
-        return self.predict(observation)
+        return self.get_last_action()
+
+
+
 
         
         
