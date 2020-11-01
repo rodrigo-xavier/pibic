@@ -89,6 +89,7 @@ class SimpleRNN(Neural, DataProcessing):
 
         if reward > 0 and self.full_buffer:
             self.reset_states()
+            print(self.get_shape())
             history = self.model.fit(self.frame_buffer.reshape(self.get_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE)
 
         self.store_frame(frame)
