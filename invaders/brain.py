@@ -31,17 +31,14 @@ class SimpleRNN(Neural, DataProcessing):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    RESET_STATES = 5
+    RESET_STATES = 500
     EPOCHS = 10
     BATCH_SIZE = 10
+    VERBOSE = True
+    NUM_OF_TRAIN = 5
     count_states = 0
-    list_of_probabilities = []
-    total_reward = 0
-
-    last_frame = []
-    penultimate_frame = []
-    last_action = 0
-    penultimate_action = 0
+    last_reward = 0
+    last_info = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -73,8 +70,11 @@ class SimpleRNN(Neural, DataProcessing):
         print("Successfully constructed networks.")
 
     def get_mov_reward(self, reward):
-        diff = self.total_reward - reward
-        self.total_reward = reward
+        diff = 0
+
+        if reward != 0:
+            diff = reward - self.last_reward
+            self.last_reward = reward
 
         return diff
     
@@ -84,21 +84,35 @@ class SimpleRNN(Neural, DataProcessing):
             self.model.reset_states()
             self.count_states = 0
     
-    def predict(self, frame, reward):
+    def train_frames(self, frame, reward, info):
         reward = self.get_mov_reward(reward)
 
         if reward > 0 and self.full_buffer:
             self.reset_states()
-            print(self.get_shape())
-            history = self.model.fit(self.frame_buffer.reshape(self.get_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE)
+            history = self.model.fit(self.frame_buffer.reshape(self.get_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        elif info['ale.lives'] < self.last_info and self.full_buffer:
+            history = self.model.fit(self.frame_buffer.reshape(self.get_shape()), self.get_evasive_action(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
 
         self.store_frame(frame)
+
+    def predict_frames(self, frame, reward, info, match):
+        if match < self.NUM_OF_TRAIN:
+            self.train_frames(frame, reward, info)
         self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
+        self.last_info = info['ale.lives']
 
         return self.get_last_action()
 
-
-
-
+    def train_matches(self, frame, reward, match):
         
-        
+        if match >= self.matches_len and self.is_new_match(match):
+            history = self.model.fit(self.get_best_match(), self.get_actions_of_best_match(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+
+        self.store_match(frame, reward, match)
+
+    def predict_matches(self, frame, reward, info, match):
+        if match < self.NUM_OF_TRAIN:
+            self.train_matches(frame, reward, match)
+        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
+
+        return self.get_last_action()
