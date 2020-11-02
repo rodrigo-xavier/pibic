@@ -31,14 +31,14 @@ class SimpleRNN(Neural, DataProcessing):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    RESET_STATES = 500
-    EPOCHS = 10
+    RESET_STATES = 10
+    EPOCHS = 1
     BATCH_SIZE = 10
     VERBOSE = True
-    NUM_OF_TRAIN = 5
-    count_states = 0
+    NUM_OF_TRAIN = 50
     last_reward = 0
     last_info = 0
+    saved = False
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -78,11 +78,9 @@ class SimpleRNN(Neural, DataProcessing):
 
         return diff
     
-    def reset_states(self):
-        self.count_states += 1
-        if self.count_states >= self.RESET_STATES:
+    def reset_states(self, match):
+        if match % self.RESET_STATES == 0:
             self.model.reset_states()
-            self.count_states = 0
     
     def train_frames(self, frame, reward, info):
         reward = self.get_mov_reward(reward)
@@ -104,15 +102,20 @@ class SimpleRNN(Neural, DataProcessing):
         return self.get_last_action()
 
     def train_matches(self, frame, reward, match):
-        
-        if match >= self.matches_len and self.is_new_match(match):
-            history = self.model.fit(self.get_best_match(), self.get_actions_of_best_match(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-
+        # self.reset_states(match)
         self.store_match(frame, reward, match)
+        
+        if (match % self.matches_len == 0) and self.okay:
+            history = self.model.fit(self.get_best_match(), self.get_actions_of_best_match(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+            self.okay = False
 
     def predict_matches(self, frame, reward, info, match):
         if match < self.NUM_OF_TRAIN:
             self.train_matches(frame, reward, match)
+        elif match == self.NUM_OF_TRAIN and not(self.saved):
+            self.save()
+            self.saved = True
+
         self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
 
         return self.get_last_action()

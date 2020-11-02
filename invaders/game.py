@@ -22,7 +22,7 @@ class Invaders():
             done = False
 
             while (not done):
-                # if m >= 5:
+                # if m >= 20:
                 self.env.render()
                 action = self.simplernn.predict_matches(frame, reward, info, m)
                 frame, reward, done, info = self.env.step(action)

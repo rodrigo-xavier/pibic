@@ -16,7 +16,10 @@ class DataProcessing():
     full_buffer = False
     last_match = 0
     best_reward = 0
+    reward_of_best_match = 0
     best_match = 0
+    absolute_reward = 0
+    okay = False
     
     def gray_crop(self, ndarray):
         # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
@@ -43,7 +46,10 @@ class DataProcessing():
             self.action_buffer = self.action_buffer[1:-1]
             self.action_buffer = np.append(self.action_buffer, np.array(action))
         else:
-            self.action_buffer = np.append(self.action_buffer, np.array(action))
+            if random.random() < 0.1:
+                self.action_buffer = np.append(self.action_buffer, np.array(random.randint(2, 3)))
+            else:
+                self.action_buffer = np.append(self.action_buffer, np.array(action))
         
     def get_last_action(self):
         return self.action_buffer[-1]
@@ -61,7 +67,16 @@ class DataProcessing():
     def is_new_match(self, match):
         return True if ((match - self.last_match) == 1) else False
     
+    def store_absolute_reward(self, reward):
+        if reward > 0:
+            self.absolute_reward = reward
+    
     def store_match(self, frame, reward, match):
+        if match % self.matches_len == 0:
+            self.match_buffer = {}
+        
+        self.store_absolute_reward(reward)
+
         frame = self.gray_crop(frame)
 
         self.frame_buffer = np.concatenate((self.frame_buffer, frame))
@@ -69,20 +84,41 @@ class DataProcessing():
         if self.is_new_match(match):
             self.match_buffer.update({(match % self.matches_len) : (self.frame_buffer, self.action_buffer)})
 
-            if reward > self.best_reward:
-                self.best_reward = reward
-                self.best_match = match % self.matches_len
+            print(self.absolute_reward)
 
+            if self.absolute_reward >= self.best_reward:
+                self.best_reward = self.absolute_reward
+                self.best_match = match % self.matches_len
+                self.store_best_match(self.match_buffer[self.best_match], self.best_reward)
+            
             self.frame_buffer = np.zeros(self.buffer_shape, dtype=int)
             self.action_buffer = np.zeros(1, dtype=int)
 
             self.last_match = match
+            self.okay = True
+    
+    def store_best_match(self, match, reward):
+        self.best_match = match
+        self.reward_of_best_match = reward
     
     def get_shape_of_best_match(self):
-        return self.match_buffer[self.best_match][0].shape
+        if self.best_reward > self.reward_of_best_match:
+            return self.match_buffer[self.best_match][0].shape
+        else:
+            return self.best_match[0].shape
     
     def get_best_match(self):
-        return self.match_buffer[self.best_match][0].reshape(self.get_shape_of_best_match())
+        if self.best_reward > self.reward_of_best_match:
+            print(self.best_reward)
+            print('best reward')
+            return self.match_buffer[self.best_match][0].reshape(self.get_shape_of_best_match())
+        else:
+            print(self.reward_of_best_match)
+            print('reward_of_best_match')
+            return self.best_match[0].reshape(self.get_shape_of_best_match())
 
     def get_actions_of_best_match(self):
-        return self.match_buffer[self.best_match][1]
+        if self.best_reward > self.reward_of_best_match:
+            return self.match_buffer[self.best_match][1]
+        else:
+            return self.best_match[1]
