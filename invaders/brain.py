@@ -36,6 +36,7 @@ class SimpleRNN(Neural, DataProcessing):
     BATCH_SIZE = 10
     VERBOSE = True
     NUM_OF_TRAIN = 30
+    ACTUAL_LIFE = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -69,6 +70,23 @@ class SimpleRNN(Neural, DataProcessing):
     def reset_states(self, match):
         if match % self.RESET_AFTER_MATCHES == 0:
             self.model.reset_states()
+    
+
+    def train_frames(self, frame, reward, info):
+        if reward > 0 and self.is_buffer_frame_full:
+            # self.reset_states()
+            history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        elif info['ale.lives'] < self.ACTUAL_LIFE and self.is_buffer_frame_full:
+            history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.get_evasive_actions(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        self.store_frame(frame)
+
+    def predict_frames(self, frame, reward, info, match):
+        if match < self.NUM_OF_TRAIN:
+            self.train_frames(frame, reward, info)
+        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
+        self.ACTUAL_LIFE = info['ale.lives']
+        return self.get_last_action()
+
 
     def train(self, frame, reward, match):
         # self.reset_states(match)

@@ -26,7 +26,8 @@ class Invaders():
                 # if m >= 10:
                 self.env.render()
 
-                action = self.simplernn.predict(frame, reward, info, m)
+                # action = self.simplernn.predict(frame, reward, info, m)
+                action = self.simplernn.predict_frames(frame, reward, info, m)
                 frame, reward, done, info = self.env.step(action)
             
         self.simplernn.save()
