@@ -10,18 +10,18 @@ class Neural():
     """
 
     def __init__(self, **kwargs):
-        self.path = str(kwargs['path'] + "model")
-        self.model = Sequential()        
+        self.PATH = str(kwargs['path'] + "model")
+        self.model = Sequential()
     
     def plot(self):
         pass
     
     def load(self):
-        self.model = load_model(self.path)
+        self.model = load_model(self.PATH)
         print("Succesfully loaded network.")
 
     def save(self):
-        self.model.save(self.path)
+        self.model.save(self.PATH)
         print("Successfully saved network.")
 
 
@@ -31,18 +31,17 @@ class SimpleRNN(Neural, DataProcessing):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    RESET_AFTER_MATCHES = 15
-    EPOCHS = 3
     BATCH_SIZE = 10
-    VERBOSE = True
-    NUM_OF_TRAIN = 30
-    ACTUAL_LIFE = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
         self.input_neurons = (self.y_max-self.y_min)*(self.x_max-self.x_min)
         self.output_neurons = len(self.ACTIONS)
         self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
+
+        self.NUM_OF_TRAINS = kwargs['trains']
+        self.VERBOSE = kwargs['verbose']
+        self.EPOCHS = kwargs['epochs']
 
         super().__init__(**kwargs)
 
@@ -67,39 +66,23 @@ class SimpleRNN(Neural, DataProcessing):
 
         print("Successfully constructed networks.")
     
-    def reset_states(self, match):
-        if match % self.RESET_AFTER_MATCHES == 0:
+    def reset_states(self, live):
+        if live < self.CURRENT_LIVE or live == 3:
             self.model.reset_states()
     
-
-    def train_frames(self, frame, reward, info):
-        if reward > 0 and self.is_buffer_frame_full:
-            # self.reset_states()
-            history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-        elif info['ale.lives'] < self.ACTUAL_LIFE and self.is_buffer_frame_full:
-            history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.get_evasive_actions(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+    def train(self, frame, reward, info):
+        self.reset_states(info['ale.lives'])
+        
+        history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        
         self.store_frame(frame)
 
-    def predict_frames(self, frame, reward, info, match):
-        if match < self.NUM_OF_TRAIN:
-            self.train_frames(frame, reward, info)
-        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
-        self.ACTUAL_LIFE = info['ale.lives']
-        return self.get_last_action()
-
-
-    def train(self, frame, reward, match):
-        # self.reset_states(match)
-        self.store_match(frame, reward, match)
-        
-        if match >= self.matches_len and self.okay:
-            history = self.model.fit(self.get_best_match(), self.get_actions_of_best_match(), epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-            self.okay = False
-
     def predict(self, frame, reward, info, match):
-        if match < self.NUM_OF_TRAIN:
-            self.train(frame, reward, match)
+        self.CURRENT_LIVE = info['ale.lives']
 
-        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(1, 170, 120)))])
+        if match <= self.NUM_OF_TRAINS:
+            self.train(frame, reward, info)
+            
+        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(self.shape_of_single_frame)))])
 
         return self.get_last_action()

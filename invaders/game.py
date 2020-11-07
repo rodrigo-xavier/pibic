@@ -8,13 +8,14 @@ class Invaders():
 
     env = gym.make("SpaceInvaders-v0")
 
-    def __init__(self, path, match):
-        self.path = path
-        self.match = match
-        self.simplernn = SimpleRNN(path=path)
+    def __init__(self, **kwargs):
+        self.MATCHES = kwargs['matches']
+        self.NUM_OF_TRAINS = kwargs['trains']
+        self.RENDER = kwargs['render']
+        self.simplernn = SimpleRNN(**kwargs)
     
     def run(self):
-        for m in range(self.match):
+        for m in range(self.MATCHES):
             frame = self.env.reset()
 
             info = {'ale.lives': 3}
@@ -23,11 +24,10 @@ class Invaders():
             done = False
 
             while (not done):
-                # if m >= 10:
-                self.env.render()
+                if self.RENDER or m >= self.NUM_OF_TRAINS:
+                    self.env.render()
 
-                # action = self.simplernn.predict(frame, reward, info, m)
-                action = self.simplernn.predict_frames(frame, reward, info, m)
+                action = self.simplernn.predict(frame, reward, info, m)
                 frame, reward, done, info = self.env.step(action)
             
         self.simplernn.save()
