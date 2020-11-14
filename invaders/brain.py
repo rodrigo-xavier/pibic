@@ -12,6 +12,7 @@ class Neural():
 
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'] + "model")
+        self.LOAD_MODEL = kwargs['load_model']
         self.model = Sequential()
     
     def plot(self):
@@ -99,8 +100,8 @@ class Supervision(SupervisionData):
         self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
         super().__init__(**kwargs)
     
-    def play(self, frame, reward, live, match):
-        self.store_match_on_buffer(frame, reward, match, live, self.supervision_movement())
+    def play(self, frame, reward, live):
+        self.store_data_on_buffer(frame, reward, live, self.supervision_movement())
         return self.get_last_action()
     
     def supervision_movement(self):
