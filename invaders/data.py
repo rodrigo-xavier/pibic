@@ -1,5 +1,5 @@
 import numpy as np
-import random
+from PIL import Image
 
 class NeuralData():
     """
@@ -18,7 +18,7 @@ class NeuralData():
         # Cortando imagem, e convertendo para escala de cinza. Eixos: [y, x]
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
 
-    def store_frame(self, frame):
+    def store_frame_on_buffer(self, frame):
         frame = self.gray_crop(frame)
 
         if len(self.frame_buffer) >= self.buffer_len:
@@ -30,18 +30,12 @@ class NeuralData():
     def get_frame_buffer_shape(self):
         return self.frame_buffer.shape
 
-    def get_last_frame(self):
-        return self.frame_buffer[-1]
-
-    def store_action(self, action):
+    def store_action_on_buffer(self, action):
         if len(self.action_buffer) >= self.buffer_len:
             self.action_buffer = self.action_buffer[1:-1]
             self.action_buffer = np.append(self.action_buffer, np.array(action))
         else:
             self.action_buffer = np.append(self.action_buffer, np.array(action))
-
-    def get_last_action(self):
-        return self.action_buffer[-1]
     
     
 class SupervisionData():
@@ -59,6 +53,9 @@ class SupervisionData():
     action_buffer = np.zeros(1, dtype=int) 
     reward_buffer = np.zeros(1, dtype=int)
     live_buffer = np.zeros(1, dtype=int)
+
+    def __init__(self, **kwargs):
+        self.PATH = str(kwargs['path'])
     
     def gray_crop(self, ndarray):
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
@@ -69,10 +66,10 @@ class SupervisionData():
     def is_new_match(self, match):
         return True if ((match - self.last_match) == 1) else False
     
-    def store_match(self, frame, reward, match, live, action):
+    def store_match_on_buffer(self, frame, reward, match, live, action):
         frame = self.gray_crop(frame)
 
-        self.frame_buffer = np.concatenate((self.frame_buffer, frame))
+        self.frame_buffer = np.append(self.frame_buffer, frame)
         self.action_buffer = np.append(self.action_buffer, np.array(action))
         self.reward_buffer = np.append(self.reward_buffer, np.array(reward))
         self.live_buffer = np.append(self.live_buffer, np.array(live))
@@ -85,10 +82,8 @@ class SupervisionData():
             self.live_buffer = self.live_buffer[1:-1]
             # Apenas para remover dados desnecessarios de inicializacao
 
+            self.match_buffer.update({match : (self.frame_buffer.shape[0], self.frame_buffer, self.action_buffer, self.reward_buffer, self.live_buffer)})
 
-            self.match_buffer.update({match : (self.frame_buffer, self.action_buffer, self.reward_buffer, self.live_buffer)})
-
-            
             # Zerar variaveis
             self.frame_buffer = np.zeros(self.shape_of_single_frame, dtype=int)
             self.action_buffer = np.zeros(1, dtype=int)
@@ -96,5 +91,23 @@ class SupervisionData():
             self.live_buffer = np.zeros(1, dtype=int)
             # Zerar variaveis
 
-
             self.last_match = match
+    
+    def save_as_png(self):
+        for m in range(len(self.match_buffer)):
+            print(self.match_buffer[m][0].shape)
+            match = self.match_buffer[m][0]
+
+            for i in range(match):
+                img = Image.fromarray(i)
+                img = img.convert("L")
+
+                path = self.PATH + "/img/match_" + str(m) + "/" + str(i) + ".png"
+                img.save(path)
+
+    def save_as_npz(self):
+        for m in range(len(self.match_buffer)):
+            np.savez_compressed(self.PATH + "/npz/match_" + str(m) + "/match.npz", self.match_buffer[m][0])
+            np.savez_compressed(self.PATH + "/npz/match_" + str(m) + "/action.npz", self.match_buffer[m][1])
+            np.savez_compressed(self.PATH + "/npz/match_" + str(m) + "/reward.npz", self.match_buffer[m][2])
+            np.savez_compressed(self.PATH + "/npz/match_" + str(m) + "/live.npz", self.match_buffer[m][3])

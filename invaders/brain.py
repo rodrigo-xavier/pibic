@@ -73,14 +73,15 @@ class SimpleRNN(Neural, NeuralData):
             self.model.reset_states()
             self.CURRENT_LIVE = lives
     
-    def train(self, frame, reward, lives):
+    def train(self, frame, reward, lives, action):
         self.reset_states(lives)
-        history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-        self.store_frame(frame)
+        self.store_frame_on_buffer(frame)
+        self.store_action_on_buffer(action)
 
-    def predict(self, frame, reward, lives):
-        self.store_action(self.ACTIONS[np.argmax(self.model.predict_on_batch(self.get_last_frame().reshape(self.shape_of_single_frame)))])
-        return self.get_last_action()
+        history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+
+    def predict(self, frame):
+        return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
 
 
 class Supervision(SupervisionData):
@@ -94,13 +95,12 @@ class Supervision(SupervisionData):
     }
 
     def __init__(self, **kwargs):
-        self.PATH = str(kwargs['path'])
-        self.LOAD_SUPERVISION_DATA = kwargs['load_supervision_data']
         self.SAVE_SUPERVISION_DATA_AS_PNG = kwargs['save_supervision_data_as_png']
         self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
+        super().__init__(**kwargs)
     
     def play(self, frame, reward, live, match):
-        self.store_match(frame, reward, match, live, self.supervision_movement())
+        self.store_match_on_buffer(frame, reward, match, live, self.supervision_movement())
         return self.get_last_action()
     
     def supervision_movement(self):
@@ -129,25 +129,5 @@ class Supervision(SupervisionData):
         """
         pass
 
-    def save_as_png():
-        for m in self.match_buffer:
-            pass
-        img = Image.fromarray(array)
-        img = img.convert("L")
-
-        path = self.PATH + "/img/" + str(counter) + ".png"
-        img.save(path)
-
-    def save_as_npz():
-        path = self.PATH + "/npz/" + "observation_list.npz"
-        np.savez_compressed(path, observation_list)
-
-        path = self.PATH + "/npz/" + "action_list.npz"
-        np.savez_compressed(path, action_list)
-
-        path = self.PATH + "/npz/" + "reward_list.npz"
-        np.savez_compressed(path, reward_list)
-
-        path = self.PATH + "/npz/" + "live_list.npz"
-        np.savez_compressed(path, live_list)
+    
 
