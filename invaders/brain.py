@@ -34,7 +34,7 @@ class SimpleRNN(Neural, NeuralData):
     
     ACTIONS = [0, 1, 2, 3]
     BATCH_SIZE = 10
-    CURRENT_LIVE = 3
+    last_life = 3
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -42,6 +42,7 @@ class SimpleRNN(Neural, NeuralData):
         self.output_neurons = len(self.ACTIONS)
         self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
 
+        self.SUPERVISION = kwargs['supervision']
         self.NUM_OF_TRAINS = kwargs['trains']
         self.VERBOSE = kwargs['verbose']
         self.EPOCHS = kwargs['epochs']
@@ -69,19 +70,29 @@ class SimpleRNN(Neural, NeuralData):
 
         print("Successfully constructed networks.")
     
-    def reset_states(self, lives):
-        if lives < self.CURRENT_LIVE:
-            self.model.reset_states()
-            self.CURRENT_LIVE = lives
+    def was_killed(self, life):
+        return True if ((self.last_life - life) == 1) else False
     
-    def train(self, frame, reward, lives, action):
-        self.reset_states(lives)
-        self.store_frame_on_buffer(frame)
+    def reset_states(self, life):
+        if self.was_killed(life):
+            self.model.reset_states()
+            self.last_life = life
+            print("reseted states")
+    
+    def train(self, frame, reward, life, action):
+        self.reset_states(life)
+
+        if not self.SUPERVISION:
+            self.store_frame_on_buffer(self.gray_crop(frame))
+        else:
+            self.store_frame_on_buffer(frame.reshape(self.shape_of_single_frame))
+
         self.store_action_on_buffer(action)
 
         history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
 
     def predict(self, frame):
+        frame = self.gray_crop(frame)
         return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
 
 

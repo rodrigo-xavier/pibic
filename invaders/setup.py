@@ -3,7 +3,7 @@ from game import Invaders
 PATH = "../../.database/pibic/invaders/"
 
 MATCHES = 500
-NUM_OF_EPOCHS = 3
+NUM_OF_EPOCHS = 1
 
 VERBOSE = True
 
@@ -28,6 +28,7 @@ invaders = Invaders(
         epochs=NUM_OF_EPOCHS,
         verbose=VERBOSE,
         render_train=RENDER_TRAIN,
+        supervision=SUPERVISION,
         num_of_supervisions=NUM_OF_SUPERVISIONS,
         load_supervision_data=LOAD_SUPERVISION_DATA,
         save_supervision_data_as_png=SAVE_SUPERVISION_DATA_AS_PNG,

@@ -35,7 +35,6 @@ class Invaders():
                     if done:
                         self.supervision.store_match_on_buffer(m)
 
-            self.env.close()
             self.supervision.save_supervision_data()
         else:
             self.supervision.load_supervision_data()
@@ -45,14 +44,10 @@ class Invaders():
             array_of_frames = self.supervision.match_buffer[m][1]
             array_of_actions = self.supervision.match_buffer[m][2]
             array_of_rewards = self.supervision.match_buffer[m][3]
-            array_of_lives = self.supervision.match_buffer[m][4]
+            array_of_lifes = self.supervision.match_buffer[m][4]
 
             for i in range(num_of_frames):
-                print(array_of_frames[i].shape)
-                print(array_of_rewards[i])
-                print(array_of_actions[i])
-                print(array_of_lives[i])
-                self.simplernn.train(array_of_frames[i], array_of_rewards[i], array_of_lives[i], array_of_actions[i])
+                self.simplernn.train(array_of_frames[i], array_of_rewards[i], array_of_lifes[i], array_of_actions[i])
 
         self.simplernn.save()
 
@@ -72,7 +67,6 @@ class Invaders():
 
                 frame, reward, done, info = self.env.step(action)
             
-        self.env.close()
         self.simplernn.save()
         
     def run_predict(self):
