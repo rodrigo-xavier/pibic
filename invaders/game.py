@@ -10,7 +10,7 @@ class Invaders():
 
     def __init__(self, **kwargs):
         self.LOAD_SUPERVISION_DATA = kwargs['load_supervision_data']
-        self.RENDER_TRAIN = kwargs['render_train']
+        self.RENDER_SELF_TRAIN = kwargs['render_self_train']
         self.MATCHES = kwargs['matches']
         self.NUM_OF_SUPERVISIONS = kwargs['num_of_supervisions']
         self.NUM_OF_TRAINS = kwargs['trains']
@@ -59,7 +59,7 @@ class Invaders():
             reward, action, done, info = 0, 0, False, {'ale.lives': 3}
 
             while (not done):
-                if self.RENDER_TRAIN or m >= self.NUM_OF_TRAINS:
+                if self.RENDER_SELF_TRAIN or m >= self.NUM_OF_TRAINS:
                     self.env.render()
                 
                 self.simplernn.train(frame, reward, info['ale.lives'], action)

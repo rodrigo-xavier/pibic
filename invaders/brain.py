@@ -78,6 +78,8 @@ class SimpleRNN(Neural, NeuralData):
             self.model.reset_states()
             self.last_life = life
             print("reseted states")
+        elif life == 3:
+            self.last_life = life
     
     def train(self, frame, reward, life, action):
         self.reset_states(life)
@@ -90,6 +92,7 @@ class SimpleRNN(Neural, NeuralData):
         self.store_action_on_buffer(action)
 
         history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+            
 
     def predict(self, frame):
         frame = self.gray_crop(frame)

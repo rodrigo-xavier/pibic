@@ -1,5 +1,4 @@
 import numpy as np
-from PIL import Image
 
 class NeuralData():
     """
@@ -9,7 +8,7 @@ class NeuralData():
     y_min, y_max, x_min, x_max = 25, 195, 20, 140
     shape_of_single_frame = (1, (y_max-y_min),(x_max-x_min))
 
-    buffer_len = 1
+    buffer_len = 10
 
     frame_buffer = np.zeros(shape_of_single_frame, dtype=int)
     action_buffer = np.zeros(1, dtype=int)
@@ -53,6 +52,7 @@ class SupervisionData():
 
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'])
+        self.NUM_OF_SUPERVISIONS = kwargs['num_of_supervisions']
     
     def gray_crop(self, ndarray):
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
@@ -86,20 +86,28 @@ class SupervisionData():
         # Zerar variaveis
     
     def save_as_png(self):
-        for m in range(len(self.match_buffer)):
-            print(self.match_buffer[m][0].shape)
-            match = self.match_buffer[m][0]
+        from PIL import Image
 
-            for i in range(match):
-                img = Image.fromarray(i)
+        for m in range(self.NUM_OF_SUPERVISIONS):
+            num_of_frames = self.match_buffer[m][0]
+            array_of_frames = self.match_buffer[m][1]
+
+            for i in range(num_of_frames):
+                img = Image.fromarray(array_of_frames[i])
                 img = img.convert("L")
 
                 path = self.PATH + "img/match_" + str(m) + "/" + str(i) + ".png"
                 img.save(path)
 
     def save_as_npz(self):
-        for m in range(len(self.match_buffer)):
+        for m in range(self.NUM_OF_SUPERVISIONS):
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/match.npz", self.match_buffer[m][0])
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/action.npz", self.match_buffer[m][1])
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/reward.npz", self.match_buffer[m][2])
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/life.npz", self.match_buffer[m][3])
+    
+    def load_npz(self):
+        """
+        docstring
+        """
+        pass
