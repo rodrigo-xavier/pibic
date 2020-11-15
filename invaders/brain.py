@@ -110,8 +110,6 @@ class Supervision(SupervisionData):
     }
 
     def __init__(self, **kwargs):
-        self.SAVE_SUPERVISION_DATA_AS_PNG = kwargs['save_supervision_data_as_png']
-        self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
         super().__init__(**kwargs)
     
     def play(self, frame, reward, live):
@@ -131,18 +129,3 @@ class Supervision(SupervisionData):
         #     return self.ACTION["LFIRE"][1]
         else:
             return self.ACTION["NOOP"]
-    
-    def save_supervision_data(self):
-        if self.SAVE_SUPERVISION_DATA_AS_PNG:
-            self.save_as_png()
-        if self.SAVE_SUPERVISION_DATA_AS_NPZ:
-            self.save_as_npz()
-    
-    def load_supervision_data(self):
-        """
-        docstring
-        """
-        pass
-
-    
-

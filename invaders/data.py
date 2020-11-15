@@ -8,7 +8,7 @@ class NeuralData():
     y_min, y_max, x_min, x_max = 25, 195, 20, 140
     shape_of_single_frame = (1, (y_max-y_min),(x_max-x_min))
 
-    buffer_len = 10
+    buffer_len = 1
 
     frame_buffer = np.zeros(shape_of_single_frame, dtype=int)
     action_buffer = np.zeros(1, dtype=int)
@@ -53,6 +53,8 @@ class SupervisionData():
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'])
         self.NUM_OF_SUPERVISIONS = kwargs['num_of_supervisions']
+        self.SAVE_SUPERVISION_DATA_AS_PNG = kwargs['save_supervision_data_as_png']
+        self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
     
     def gray_crop(self, ndarray):
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
@@ -85,6 +87,12 @@ class SupervisionData():
         self.life_buffer = np.zeros(1, dtype=int)
         # Zerar variaveis
     
+    def save_supervision_data(self):
+        if self.SAVE_SUPERVISION_DATA_AS_PNG:
+            self.save_as_png()
+        if self.SAVE_SUPERVISION_DATA_AS_NPZ:
+            self.save_as_npz()
+    
     def save_as_png(self):
         from PIL import Image
 
@@ -101,13 +109,25 @@ class SupervisionData():
 
     def save_as_npz(self):
         for m in range(self.NUM_OF_SUPERVISIONS):
-            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/match.npz", self.match_buffer[m][0])
-            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/action.npz", self.match_buffer[m][1])
-            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/reward.npz", self.match_buffer[m][2])
-            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/life.npz", self.match_buffer[m][3])
+            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/frames.npz", self.match_buffer[m][1])
+            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/actions.npz", self.match_buffer[m][2])
+            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/rewards.npz", self.match_buffer[m][3])
+            np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/lifes.npz", self.match_buffer[m][4])
     
     def load_npz(self):
-        """
-        docstring
-        """
-        pass
+        import os
+
+        for folder in os.listdir(self.PATH + "npz/"):
+            match = int(folder.split("_")[1])
+            
+            actions = np.load(self.PATH + "npz/" + str(folder) + '/actions.npz')
+            lifes = np.load(self.PATH + "npz/" + str(folder) + '/lifes.npz')
+            frames = np.load(self.PATH + "npz/" + str(folder) + '/frames.npz')
+            rewards = np.load(self.PATH + "npz/" + str(folder) + '/rewards.npz')
+
+            array_of_actions = actions.f.arr_0
+            array_of_lifes = lifes.f.arr_0
+            array_of_frames = frames.f.arr_0
+            array_of_rewards = rewards.f.arr_0
+
+            self.match_buffer.update({match : (array_of_frames.shape[0], array_of_frames, array_of_actions, array_of_rewards, array_of_lifes)})

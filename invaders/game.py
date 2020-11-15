@@ -37,7 +37,7 @@ class Invaders():
 
             self.supervision.save_supervision_data()
         else:
-            self.supervision.load_supervision_data()
+            self.supervision.load_npz()
             
         for m in range(self.NUM_OF_SUPERVISIONS):
             num_of_frames = self.supervision.match_buffer[m][0]
