@@ -33,8 +33,13 @@ class SimpleRNN(Neural, NeuralData):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    BATCH_SIZE = 10
+    BATCH_SIZE = 32
     last_life = 3
+    last_match = 0
+    reset_states_count = 0
+
+    total_frames = 16521
+    frames_until_now = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -73,16 +78,20 @@ class SimpleRNN(Neural, NeuralData):
     def was_killed(self, life):
         return True if ((self.last_life - life) == 1) else False
     
-    def reset_states(self, life):
-        if self.was_killed(life):
+    def is_new_match(self, match):
+        return True if ((match - self.last_match) == 1) else False
+    
+    def reset_states(self, life, match):
+        if self.was_killed(life) or self.is_new_match(match):
             self.model.reset_states()
             self.last_life = life
+            self.last_match = match
+
             print("reseted states")
-        elif life == 3:
-            self.last_life = life
+            self.reset_states_count += 1
     
-    def train(self, frame, reward, life, action):
-        self.reset_states(life)
+    def train(self, frame, reward, life, action, match):
+        self.reset_states(life, match)
 
         if not self.SUPERVISION:
             self.store_frame_on_buffer(self.gray_crop(frame))
@@ -91,12 +100,20 @@ class SimpleRNN(Neural, NeuralData):
 
         self.store_action_on_buffer(action)
 
-        history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        if len(self.frame_buffer) % self.buffer_len == 0:
+            history = self.model.fit(self.frame_buffer, self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+            
+            # eh possivel prever quanto tempo vai durar o treino tambem
+            self.frames_until_now = self.frames_until_now + len(self.frame_buffer)
+            print(str((self.frames_until_now*100)/self.total_frames) + " %")
+
+            self.reset_buffer()
             
 
     def predict(self, frame):
         frame = self.gray_crop(frame)
-        return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
+        # return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
+        return self.ACTIONS[np.argmax(self.model.predict(frame.reshape(self.shape_of_single_frame), use_multiprocessing=True))]
 
 
 class Supervision(SupervisionData):

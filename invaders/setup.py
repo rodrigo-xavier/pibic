@@ -2,11 +2,11 @@ from game import Invaders
 
 PATH = "../../.database/pibic/invaders/"
 
-MATCHES = 300
-NUM_OF_EPOCHS = 1
+MATCHES = 3000
+NUM_OF_EPOCHS = 5
 
 LOAD_MODEL = False
-VERBOSE = True
+VERBOSE = False
 
 SUPERVISION = True
 LOAD_SUPERVISION_DATA = True
