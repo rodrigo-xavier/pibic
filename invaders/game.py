@@ -37,7 +37,7 @@ class Invaders():
 
             self.supervision.save_supervision_data()
         else:
-            self.supervision.load_supervision_data()
+            self.supervision.load_npz()
             
         for m in range(self.NUM_OF_SUPERVISIONS):
             num_of_frames = self.supervision.match_buffer[m][0]
@@ -47,9 +47,10 @@ class Invaders():
             array_of_lifes = self.supervision.match_buffer[m][4]
 
             for i in range(num_of_frames):
-                self.simplernn.train(array_of_frames[i], array_of_rewards[i], array_of_lifes[i], array_of_actions[i])
+                self.simplernn.train(array_of_frames[i], array_of_rewards[i], array_of_lifes[i], array_of_actions[i], m)
 
         self.simplernn.save()
+        print("Estado foi resetado: " + str(self.simplernn.reset_states_count) + " vezes")
 
         del self.supervision
 
@@ -62,7 +63,7 @@ class Invaders():
                 if self.RENDER_SELF_TRAIN or m >= self.NUM_OF_TRAINS:
                     self.env.render()
                 
-                self.simplernn.train(frame, reward, info['ale.lives'], action)
+                self.simplernn.train(frame, reward, info['ale.lives'], action, m)
                 action = self.simplernn.predict(frame)
 
                 frame, reward, done, info = self.env.step(action)

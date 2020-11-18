@@ -33,8 +33,13 @@ class SimpleRNN(Neural, NeuralData):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    BATCH_SIZE = 10
+    BATCH_SIZE = 32
     last_life = 3
+    last_match = 0
+    reset_states_count = 0
+
+    total_frames = 16521
+    count_frames = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -73,16 +78,21 @@ class SimpleRNN(Neural, NeuralData):
     def was_killed(self, life):
         return True if ((self.last_life - life) == 1) else False
     
-    def reset_states(self, life):
-        if self.was_killed(life):
+    def is_new_match(self, match):
+        return True if ((match - self.last_match) == 1) else False
+    
+    def reset_states(self, life, match):
+        if self.was_killed(life) or self.is_new_match(match):
             self.model.reset_states()
             self.last_life = life
+            self.last_match = match
+
             print("reseted states")
-        elif life == 3:
-            self.last_life = life
+            self.reset_states_count += 1
     
-    def train(self, frame, reward, life, action):
-        self.reset_states(life)
+    def train(self, frame, reward, life, action, match):
+        self.reset_states(life, match)
+        self.count_frames += 1
 
         if not self.SUPERVISION:
             self.store_frame_on_buffer(self.gray_crop(frame))
@@ -91,12 +101,14 @@ class SimpleRNN(Neural, NeuralData):
 
         self.store_action_on_buffer(action)
 
-        history = self.model.fit(self.frame_buffer.reshape(self.get_frame_buffer_shape()), self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+        if self.count_frames % self.buffer_len == 0:
+            history = self.model.fit(self.frame_buffer, self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
             
+            # eh possivel prever quanto tempo vai durar o treino tambem
+            print(str((self.count_frames*100)/self.total_frames) + " %")
 
     def predict(self, frame):
-        frame = self.gray_crop(frame)
-        return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
+        return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
 
 
 class Supervision(SupervisionData):
@@ -110,8 +122,6 @@ class Supervision(SupervisionData):
     }
 
     def __init__(self, **kwargs):
-        self.SAVE_SUPERVISION_DATA_AS_PNG = kwargs['save_supervision_data_as_png']
-        self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
         super().__init__(**kwargs)
     
     def play(self, frame, reward, live):
@@ -131,18 +141,3 @@ class Supervision(SupervisionData):
         #     return self.ACTION["LFIRE"][1]
         else:
             return self.ACTION["NOOP"]
-    
-    def save_supervision_data(self):
-        if self.SAVE_SUPERVISION_DATA_AS_PNG:
-            self.save_as_png()
-        if self.SAVE_SUPERVISION_DATA_AS_NPZ:
-            self.save_as_npz()
-    
-    def load_supervision_data(self):
-        """
-        docstring
-        """
-        pass
-
-    
-
