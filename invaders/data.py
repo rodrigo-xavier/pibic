@@ -8,7 +8,7 @@ class NeuralData():
     y_min, y_max, x_min, x_max = 25, 195, 20, 140
     shape_of_single_frame = (1, (y_max-y_min),(x_max-x_min))
 
-    buffer_len = 1
+    buffer_len = 30
 
     frame_buffer = np.zeros(shape_of_single_frame, dtype=int)
     action_buffer = np.zeros(1, dtype=int)
@@ -18,7 +18,7 @@ class NeuralData():
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
 
     def store_frame_on_buffer(self, frame):
-        if len(self.frame_buffer) > self.buffer_len:
+        if len(self.frame_buffer) >= self.buffer_len:
             self.frame_buffer = self.frame_buffer[1:-1]
             self.frame_buffer = np.concatenate((self.frame_buffer, frame))
         else:
@@ -26,13 +26,9 @@ class NeuralData():
 
     def get_frame_buffer_shape(self):
         return self.frame_buffer.shape
-    
-    def reset_buffer(self):
-        self.frame_buffer = np.zeros(self.shape_of_single_frame, dtype=int)
-        self.action_buffer = np.zeros(1, dtype=int)
 
     def store_action_on_buffer(self, action):
-        if len(self.action_buffer) > self.buffer_len:
+        if len(self.action_buffer) >= self.buffer_len:
             self.action_buffer = self.action_buffer[1:-1]
             self.action_buffer = np.append(self.action_buffer, np.array(action))
         else:

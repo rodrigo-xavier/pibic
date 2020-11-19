@@ -39,7 +39,7 @@ class SimpleRNN(Neural, NeuralData):
     reset_states_count = 0
 
     total_frames = 16521
-    frames_until_now = 0
+    count_frames = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -92,6 +92,7 @@ class SimpleRNN(Neural, NeuralData):
     
     def train(self, frame, reward, life, action, match):
         self.reset_states(life, match)
+        self.count_frames += 1
 
         if not self.SUPERVISION:
             self.store_frame_on_buffer(self.gray_crop(frame))
@@ -100,20 +101,14 @@ class SimpleRNN(Neural, NeuralData):
 
         self.store_action_on_buffer(action)
 
-        if len(self.frame_buffer) % self.buffer_len == 0:
+        if self.count_frames % self.buffer_len == 0:
             history = self.model.fit(self.frame_buffer, self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
             
             # eh possivel prever quanto tempo vai durar o treino tambem
-            self.frames_until_now = self.frames_until_now + len(self.frame_buffer)
-            print(str((self.frames_until_now*100)/self.total_frames) + " %")
-
-            self.reset_buffer()
-            
+            print(str((self.count_frames*100)/self.total_frames) + " %")
 
     def predict(self, frame):
-        frame = self.gray_crop(frame)
-        # return self.ACTIONS[np.argmax(self.model.predict_on_batch(frame.reshape(self.shape_of_single_frame)))]
-        return self.ACTIONS[np.argmax(self.model.predict(frame.reshape(self.shape_of_single_frame), use_multiprocessing=True))]
+        return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
 
 
 class Supervision(SupervisionData):
