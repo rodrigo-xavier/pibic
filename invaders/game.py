@@ -20,9 +20,8 @@ class Invaders():
         self.supervision = Supervision(**kwargs)
     
     def run_supervision_training(self):
-        import time
-
         if not self.LOAD_SUPERVISION_DATA:
+            import time
             for m in range(self.NUM_OF_SUPERVISIONS):
                 frame = self.env.reset()
                 reward, action, done, info = 0, 0, False, {'ale.lives': 3}
@@ -33,24 +32,22 @@ class Invaders():
                     action = self.supervision.play(frame, reward, info['ale.lives'])
                     frame, reward, done, info = self.env.step(action)
                     if done:
-                        self.supervision.store_match_on_buffer(m)
+                        self.supervision.prepare_to_save_data(m)
 
             self.supervision.save_supervision_data()
         else:
             self.supervision.load_npz()
             
-        for m in range(self.NUM_OF_SUPERVISIONS):
-            num_of_frames = self.supervision.match_buffer[m][0]
-            array_of_frames = self.supervision.match_buffer[m][1]
-            array_of_actions = self.supervision.match_buffer[m][2]
-            array_of_rewards = self.supervision.match_buffer[m][3]
-            array_of_lifes = self.supervision.match_buffer[m][4]
+            for m in range(self.NUM_OF_SUPERVISIONS):
+                num_of_frames = self.supervision.match_buffer[m][0]
+                frames = self.supervision.match_buffer[m][1]
+                actions = self.supervision.match_buffer[m][2]
+                rewards = self.supervision.match_buffer[m][3]
+                lifes = self.supervision.match_buffer[m][4]
 
-            for i in range(num_of_frames):
-                self.simplernn.train(array_of_frames[i], array_of_rewards[i], array_of_lifes[i], array_of_actions[i], m)
+                self.simplernn.train(frames, rewards, lifes, actions, m, num_of_frames)
 
-        self.simplernn.save()
-        print("Estado foi resetado: " + str(self.simplernn.reset_states_count) + " vezes")
+            self.simplernn.save()
 
         del self.supervision
 

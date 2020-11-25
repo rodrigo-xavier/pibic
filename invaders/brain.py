@@ -1,4 +1,4 @@
-from data import NeuralData, SupervisionData
+from data import NeuralData
 import math
 import numpy as np
 from keras.models import load_model, Sequential
@@ -33,13 +33,10 @@ class SimpleRNN(Neural, NeuralData):
     """
     
     ACTIONS = [0, 1, 2, 3]
-    BATCH_SIZE = 32
+    BATCH_SIZE = 1
     last_life = 3
     last_match = 0
     reset_states_count = 0
-
-    total_frames = 16521
-    count_frames = 0
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -74,6 +71,14 @@ class SimpleRNN(Neural, NeuralData):
         self.model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
         print("Successfully constructed networks.")
+
+    def prepare_action_data_to_train_the_network(self, action):
+        new_action = np.zeros((len(action), len(self.ACTIONS)), dtype=int) 
+
+        for i in range(len(action)):
+            new_action[i, self.ACTIONS.index(action[i])] = 1
+    
+        return new_action
     
     def was_killed(self, life):
         return True if ((self.last_life - life) == 1) else False
@@ -90,28 +95,25 @@ class SimpleRNN(Neural, NeuralData):
             print("reseted states")
             self.reset_states_count += 1
     
-    def train(self, frame, reward, life, action, match):
-        self.reset_states(life, match)
-        self.count_frames += 1
+    def train(self, frame, reward, life, action, match, num_of_frames):
+        frames = frame.reshape((num_of_frames, 170, 120))
+        action = self.prepare_action_data_to_train_the_network(action)
 
-        if not self.SUPERVISION:
-            self.store_frame_on_buffer(self.gray_crop(frame))
-        else:
-            self.store_frame_on_buffer(frame.reshape(self.shape_of_single_frame))
-
-        self.store_action_on_buffer(action)
-
-        if self.count_frames % self.buffer_len == 0:
-            history = self.model.fit(self.frame_buffer, self.action_buffer, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-            
-            # eh possivel prever quanto tempo vai durar o treino tambem
-            print(str((self.count_frames*100)/self.total_frames) + " %")
+        for i in range(self.EPOCHS):
+            for i in range(num_of_frames):
+                history = self.model.fit(frames[i].reshape(self.shape_of_single_frame), action[i].reshape(1,len(self.ACTIONS)), epochs=1, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+                print(self.model.get_weights())
+                self.reset_states(life[i], match)
+            self.model.reset_states()
 
     def predict(self, frame):
-        return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
+        # return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
+        result = self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
+        print(result)
+        return result
 
 
-class Supervision(SupervisionData):
+class Supervision(NeuralData):
     ACTION = {
         "NOOP":         0,
         "FIRE":         [" ", 1],
