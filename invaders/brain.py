@@ -98,22 +98,21 @@ class SimpleRNN(Neural, NeuralData):
         frames = frame.reshape((num_of_frames, 170, 120))
         action = self.prepare_action_data(action)
 
-        for j in range(self.EPOCHS):
-            for i in range(num_of_frames):
-                history = self.model.fit(
-                    frames[i].reshape(self.shape_of_single_frame), 
-                    action[i].reshape(self.shape_of_single_action), 
-                    epochs=1, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE
-                )
+        # for j in range(self.EPOCHS):
+        #     for i in range(num_of_frames):
+        #         history = self.model.fit(
+        #             frames[i].reshape(self.shape_of_single_frame), 
+        #             action[i].reshape(self.shape_of_single_action), 
+        #             epochs=1, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE
+        #         )
                 # print(self.model.get_weights())
                 # self.reset_states(life[i], match)
             # print(j)
 
+        history = self.model.fit(frames, action, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
+
     def predict(self, frame):
-        # return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
-        result = self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
-        print(result)
-        return result
+        return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame)))]
 
 
 class Reinforcement(NeuralData):

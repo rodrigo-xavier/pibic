@@ -48,7 +48,7 @@ class Invaders():
         self.simplernn.save()
         del self.reinforcement
     
-    def test_overfiting(self):
+    def test_overfitting(self):
         import numpy as np
         self.reinforcement.load_npz()
         self.simplernn.load()

@@ -3,13 +3,13 @@ from game import Invaders
 PATH = "../../.database/pibic/invaders/"
 
 MATCHES = 3000
-NUM_OF_EPOCHS = 1
+NUM_OF_EPOCHS = 10
 
-TEST_OVERFITING = False
+TEST_OVERFITTING = True
 LOAD_MODEL = False
-VERBOSE = False
+VERBOSE = True
 
-LOAD_REINFORCEMENT_DATA = True
+MAKE_REINFORCEMENT_DATA = False
 NUM_OF_REINFORCEMENTS = 1
 SLEEP = 0.06
 # SLEEP = 0
@@ -25,15 +25,15 @@ invaders = Invaders(
         sleep=SLEEP,
     )
 
-if TEST_OVERFITING:
-    invaders.test_overfiting()
+if TEST_OVERFITTING:
+    invaders.test_overfitting()
 else:
     if LOAD_MODEL:
         invaders.simplernn.load()
     else:
-        if LOAD_REINFORCEMENT_DATA:
-            invaders.load_reinforcement_and_train()
-        else:
+        if MAKE_REINFORCEMENT_DATA:
             invaders.save_reinforcement()
+        else:
+            invaders.load_reinforcement_and_train()
 
     invaders.run_predict()
