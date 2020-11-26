@@ -12,6 +12,8 @@ class Invaders():
         self.PATH = str(kwargs['path'])
         self.MATCHES = kwargs['matches']
         self.SLEEP = kwargs['sleep']
+        self.EPOCHS = kwargs['epochs']
+        self.hidden_neurons = kwargs['hidden_neurons']
         
         self.simplernn = SimpleRNN(**kwargs)
         self.reinforcement = Reinforcement(path=self.PATH)
@@ -47,6 +49,7 @@ class Invaders():
     
     def test_overfitting(self):
         import numpy as np
+        import csv
 
         self.simplernn.load()
         matches = self.reinforcement.num_of_samples()
@@ -67,11 +70,20 @@ class Invaders():
                         fail += 1
                         accumulated_loss = accumulated_loss + (result - actions[i])**2
                         loss = accumulated_loss/fail
-                    
+                
                 print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss) + "%")
             except:
                 print("Overfitting")
                 print("Can't load folder match_" + str(m))
+        
+        with open((self.PATH + 'log.csv'), 'a', newline='') as csvfile:
+            fieldnames = ["Accuracy", "Loss", "epochs", "hidden_neurons", "reset_states"]
+            spamwriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            log = {"Accuracy": accuracy, "Loss": loss, "epochs": self.EPOCHS, 
+                    "hidden_neurons": self.hidden_neurons, "reset_states": False}
+            spamwriter.writerow(log)
+
+            print('successfuly saved CSV')
 
         del self.reinforcement
         

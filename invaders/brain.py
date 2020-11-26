@@ -4,6 +4,7 @@ import numpy as np
 from keras.models import load_model, Sequential
 import keras.layers as layers
 import keyboard
+import os
 
 class Neural():
     """
@@ -11,19 +12,31 @@ class Neural():
     """
 
     def __init__(self, **kwargs):
-        self.PATH = str(kwargs['path'] + "model")
-        self.LOAD_MODEL = kwargs['load_model']
+        self.PATH = str(kwargs['path'] + "model/")
         self.model = Sequential()
+        self.hidden_neurons = kwargs['hidden_neurons']
     
     def plot(self):
         pass
     
     def load(self):
-        self.model = load_model(self.PATH)
+        self.model = load_model(self.PATH + self.next_folder)
         print("Succesfully loaded network.")
 
     def save(self):
-        self.model.save(self.PATH)
+        m = []
+
+        for folder in os.listdir(self.PATH):
+            m.append(int(folder.split("_")[1]))
+        if m:
+            number_of_last_folder = max(m)
+        else:
+            number_of_last_folder = 0
+        self.next_folder = "net_" + str(number_of_last_folder + 1) + "_epochs=" + str(self.EPOCHS) + "_hidden=" + str(self.hidden_neurons) + "_reset=False"
+
+        os.mkdir(self.PATH + self.next_folder)
+
+        self.model.save(self.PATH + self.next_folder)
         print("Successfully saved network.")
 
 
