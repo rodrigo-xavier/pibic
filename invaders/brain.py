@@ -43,7 +43,11 @@ class SimpleRNN(Neural, NeuralData):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
         self.input_neurons = (self.y_max-self.y_min)*(self.x_max-self.x_min)
         self.output_neurons = len(self.ACTIONS)
-        self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
+
+        if 'hidden_neurons' in kwargs:
+            self.hidden_neurons = kwargs['hidden_neurons']
+        else:
+            self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
 
         self.VERBOSE = kwargs['verbose']
         self.EPOCHS = kwargs['epochs']
@@ -94,7 +98,7 @@ class SimpleRNN(Neural, NeuralData):
             print("reseted states")
             self.reset_states_count += 1
     
-    def train(self, frame, reward, life, action, match, num_of_frames):
+    def train(self, frame, life, action, match, num_of_frames):
         frames = frame.reshape((num_of_frames, 170, 120))
         action = self.prepare_action_data(action)
 

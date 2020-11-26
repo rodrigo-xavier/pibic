@@ -18,34 +18,30 @@ class Invaders():
     
     def save_reinforcement(self):
         import time
-        while input("Do you want to play again (y/n)?")=='y':
-            re = Reinforcement(path=self.PATH)
-
+        while input("Do you want to play (y/n)? ")=='y':
+            self.reinforcement.reset()
             frame = self.env.reset()
             reward, action, done, info = 0, 0, False, {'ale.lives': 3}
 
             while (not done):
                 time.sleep(self.SLEEP)
                 self.env.render()
-                action = re.play(frame, reward, info['ale.lives'])
+                action = self.reinforcement.play(frame, reward, info['ale.lives'])
                 frame, reward, done, info = self.env.step(action)
                 
-            re.save_data()
-            del re
+            self.reinforcement.save_data()
+        del self.reinforcement
 
     def load_reinforcement_and_train(self):
         matches = self.reinforcement.num_of_samples()
         
         for m in range(matches):
-            self.reinforcement.load_npz(m)
-            
-            num_of_frames = self.reinforcement.match_buffer[m][0]
-            frames = self.reinforcement.match_buffer[m][1]
-            actions = self.reinforcement.match_buffer[m][2]
-            rewards = self.reinforcement.match_buffer[m][3]
-            lifes = self.reinforcement.match_buffer[m][4]
-
-            self.simplernn.train(frames, rewards, lifes, actions, m, num_of_frames)
+            try:
+                num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(m)
+                self.simplernn.train(frames, lifes, actions, m, num_of_frames)
+            except:
+                print("Training")
+                print("Can't load folder match_" + str(m))
 
         self.simplernn.save()
     
@@ -54,26 +50,28 @@ class Invaders():
 
         self.simplernn.load()
         matches = self.reinforcement.num_of_samples()
-        success = 0
-        loss = 0
+        success, accuracy, accumulated_loss, loss, fail = 0, 0, 0, 0, 0
         
         for m in range(matches):
-            self.reinforcement.load_npz(m)
+            try:
+                num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(m)
 
-            num_of_frames = self.reinforcement.match_buffer[m][0]
-            frames = self.reinforcement.match_buffer[m][1]
-            actions = self.reinforcement.match_buffer[m][2]
-
-            for i in range(num_of_frames):
-                predicted = self.simplernn.model.predict(frames[i].reshape(self.simplernn.shape_of_single_frame))
-                result = self.simplernn.ACTIONS[np.argmax(predicted)]
-                
-                if result==actions[i]:
-                    success += 1
-                else:
-                    loss
-                
-                print("Success: " + str((success*100)/num_of_frames) + "% Loss: " + str((loss*100)/num_of_frames) + "%")
+                for i in range(num_of_frames):
+                    predicted = self.simplernn.model.predict(frames[i].reshape(self.simplernn.shape_of_single_frame))
+                    result = self.simplernn.ACTIONS[np.argmax(predicted)]
+                    
+                    if result==actions[i]:
+                        success += 1
+                        accuracy = (success*100)/num_of_frames
+                    else:
+                        fail += 1
+                        accumulated_loss = accumulated_loss + (result - actions[i])**2
+                        loss = accumulated_loss/fail
+                    
+                print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss) + "%")
+            except:
+                print("Overfitting")
+                print("Can't load folder match_" + str(m))
 
         del self.reinforcement
         

@@ -10,8 +10,6 @@ class NeuralData():
     shape_of_single_frame = (1, (y_max-y_min),(x_max-x_min))
 
     match_buffer = []
-    buffer_len = 30
-
     frame_buffer = np.zeros(shape_of_single_frame, dtype=int)
     action_buffer = np.zeros(1, dtype=int) 
     reward_buffer = np.zeros(1, dtype=int)
@@ -19,9 +17,16 @@ class NeuralData():
 
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'])
-        self.prepare_folder_to_save_data()
     
-    def prepare_folder_to_save_data(self):
+    def reset(self):
+        self.match_buffer = []
+        self.frame_buffer = np.zeros(self.shape_of_single_frame, dtype=int)
+        self.action_buffer = np.zeros(1, dtype=int) 
+        self.reward_buffer = np.zeros(1, dtype=int)
+        self.life_buffer = np.zeros(1, dtype=int)
+        self.prepare_folder()
+
+    def prepare_folder(self):
         m = []
         listdir = os.listdir(self.PATH + "npz/")
 
@@ -33,7 +38,8 @@ class NeuralData():
         else:
             self.next_folder = "match_0"
 
-        os.mkdir(self.next_folder)
+        os.mkdir(self.PATH + "npz/" + self.next_folder)
+        os.mkdir(self.PATH + "img/" + self.next_folder)
     
     def gray_crop(self, ndarray):
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
@@ -63,6 +69,7 @@ class NeuralData():
             self.save_as_npz()
         if input('Do you want to save data as png (y/n)? ')=='y':
             self.save_as_png()
+        print("")
     
     def save_as_npz(self):
         path = self.PATH + "npz/" + str(self.next_folder) + "/"
@@ -106,6 +113,6 @@ class NeuralData():
         arr_frames = frames.f.arr_0
         arr_rewards = rewards.f.arr_0
 
-        self.match_buffer = [arr_actions.shape[0], arr_frames, arr_actions, arr_rewards, arr_lifes]
-        
         print("Successfully loaded NPZ.")
+
+        return arr_actions.shape[0], arr_frames, arr_actions, arr_rewards, arr_lifes
