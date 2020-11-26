@@ -1,49 +1,21 @@
-# pibic
+Primeiro instale o pyenv, para obter um ambiente python limpo.
 
-To install and execute this, run the following code:
+O código a seguir executa o instalador automático do pyenv.
 
-> sudo apt-get update && apt-get upgrade
+    curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 
-> curls https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+Em seguida, instale o python versão 3.8.3 utilizando o pacote pyenv, da seguinte forma:
 
-> python3 get-pip.py
+    pyenv install 3.5.9
+    pyenv shell 3.5.9
 
-> pip install -U pip
+Faça um clone do meu repositório:
 
-> python3 -m pip install virtualenv
+    git clone https://github.com/rodrigo-xavier/about-me.git
 
-> git clone https://github.com/rodrigo-xavier/pibic.git
+Agora crie uma virtualenv, ative-a, faça o upgrade do pip e instale os requisitos do projeto:
 
-> cd pibic
-
-> python3 -m venv env
-
-> source /env/bin/activate
-
-> pip install -r requirements.txt
-
-> git clone https://github.com/openai/gym
-
-> cd gym
-
-> pip install -e ‘.[atari]’
-
-> python3 run.py
-
-
-
-<!-- new method -->
-install venv
-install pyenv
-
-install pyenv libraries
-install tkinter libraries
-
-pyenv install 3.5.9
-pyenv shell 3.5.9
-pip install --upgrade pip
-
-create virtualenv
-activate virtualenv
-
-pip install -r requirements.txt
+    python -m venv virtualenv
+    source virtualenv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
