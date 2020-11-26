@@ -37,6 +37,7 @@ class SimpleRNN(Neural, NeuralData):
     last_life = 3
     last_match = 0
     reset_states_count = 0
+    shape_of_single_action = (1, len(ACTIONS))
 
     def __init__(self, **kwargs):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
@@ -44,8 +45,6 @@ class SimpleRNN(Neural, NeuralData):
         self.output_neurons = len(self.ACTIONS)
         self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
 
-        self.SUPERVISION = kwargs['supervision']
-        self.NUM_OF_TRAINS = kwargs['trains']
         self.VERBOSE = kwargs['verbose']
         self.EPOCHS = kwargs['epochs']
 
@@ -72,7 +71,7 @@ class SimpleRNN(Neural, NeuralData):
 
         print("Successfully constructed networks.")
 
-    def prepare_action_data_to_train_the_network(self, action):
+    def prepare_action_data(self, action):
         new_action = np.zeros((len(action), len(self.ACTIONS)), dtype=int) 
 
         for i in range(len(action)):
@@ -97,14 +96,18 @@ class SimpleRNN(Neural, NeuralData):
     
     def train(self, frame, reward, life, action, match, num_of_frames):
         frames = frame.reshape((num_of_frames, 170, 120))
-        action = self.prepare_action_data_to_train_the_network(action)
+        action = self.prepare_action_data(action)
 
-        for i in range(self.EPOCHS):
+        for j in range(self.EPOCHS):
             for i in range(num_of_frames):
-                history = self.model.fit(frames[i].reshape(self.shape_of_single_frame), action[i].reshape(1,len(self.ACTIONS)), epochs=1, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE)
-                print(self.model.get_weights())
-                self.reset_states(life[i], match)
-            self.model.reset_states()
+                history = self.model.fit(
+                    frames[i].reshape(self.shape_of_single_frame), 
+                    action[i].reshape(self.shape_of_single_action), 
+                    epochs=1, batch_size=self.BATCH_SIZE, verbose=self.VERBOSE
+                )
+                # print(self.model.get_weights())
+                # self.reset_states(life[i], match)
+            # print(j)
 
     def predict(self, frame):
         # return self.ACTIONS[np.argmax(self.model.predict(self.gray_crop(frame), use_multiprocessing=True))]
@@ -113,7 +116,7 @@ class SimpleRNN(Neural, NeuralData):
         return result
 
 
-class Supervision(NeuralData):
+class Reinforcement(NeuralData):
     ACTION = {
         "NOOP":         0,
         "FIRE":         [" ", 1],
@@ -127,10 +130,10 @@ class Supervision(NeuralData):
         super().__init__(**kwargs)
     
     def play(self, frame, reward, live):
-        self.store_data_on_buffer(frame, reward, live, self.supervision_movement())
+        self.store_data_on_buffer(frame, reward, live, self.reinforcement_movement())
         return self.get_last_action()
     
-    def supervision_movement(self):
+    def reinforcement_movement(self):
         if keyboard.is_pressed(self.ACTION["RIGHT"][0]):
             return self.ACTION["RIGHT"][1]
         elif keyboard.is_pressed(self.ACTION["LEFT"][0]):

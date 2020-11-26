@@ -18,9 +18,7 @@ class NeuralData():
     
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'])
-        self.NUM_OF_SUPERVISIONS = kwargs['num_of_supervisions']
-        self.SAVE_SUPERVISION_DATA_AS_PNG = kwargs['save_supervision_data_as_png']
-        self.SAVE_SUPERVISION_DATA_AS_NPZ = kwargs['save_supervision_data_as_npz']
+        self.NUM_OF_REINFORCEMENTS = kwargs['num_of_reinforcements']
     
     def gray_crop(self, ndarray):
         return np.mean(ndarray[self.y_min:self.y_max, self.x_min:self.x_max], axis=2).reshape(self.shape_of_single_frame)
@@ -53,16 +51,19 @@ class NeuralData():
         self.life_buffer = np.zeros(1, dtype=int)
         # Zerar variaveis
     
-    def save_supervision_data(self):
-        if self.SAVE_SUPERVISION_DATA_AS_PNG:
+    def save_reinforcement_data(self):
+        npz = input('Do you want to save data as npz (y/n)? ')
+        png = input('Do you want to save data as png (y/n)? ')
+
+        if png=='y':
             self.save_as_png()
-        if self.SAVE_SUPERVISION_DATA_AS_NPZ:
+        if npz=='y':
             self.save_as_npz()
     
     def save_as_png(self):
         from PIL import Image
 
-        for m in range(self.NUM_OF_SUPERVISIONS):
+        for m in range(self.NUM_OF_REINFORCEMENTS):
             num_of_frames = self.match_buffer[m][0]
             array_of_frames = self.match_buffer[m][1]
 
@@ -76,7 +77,7 @@ class NeuralData():
         print("Successfully saved as PNG.")
 
     def save_as_npz(self):
-        for m in range(self.NUM_OF_SUPERVISIONS):
+        for m in range(self.NUM_OF_REINFORCEMENTS):
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/frames.npz", self.match_buffer[m][1])
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/actions.npz", self.match_buffer[m][2])
             np.savez_compressed(self.PATH + "npz/match_" + str(m) + "/rewards.npz", self.match_buffer[m][3])
