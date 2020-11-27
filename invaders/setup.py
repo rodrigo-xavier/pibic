@@ -7,9 +7,9 @@ SLEEP = 0.06
 
 MAKE_REINFORCEMENT_DATA = False
 LOAD_MODEL = False
-VERBOSE = True
+VERBOSE = False
 
-for neurons in range(140, 301, 10):
+for neurons in range(140, 501, 10):
     for epochs in range(0, 101, 20):
         NUM_OF_EPOCHS = epochs
         HIDDEN_NEURONS = neurons
@@ -25,6 +25,18 @@ for neurons in range(140, 301, 10):
             )
 
         invaders.load_reinforcement_and_train()
-        invaders.test_overfitting()
-        
         del invaders
+
+
+        invaders = Invaders(
+                path=PATH,
+                matches=MATCHES,
+                epochs=NUM_OF_EPOCHS,
+                hidden_neurons=HIDDEN_NEURONS,
+                verbose=VERBOSE,
+                load_model=LOAD_MODEL,
+                sleep=SLEEP,
+            )
+        invaders.test_overfitting()
+        del invaders
+        

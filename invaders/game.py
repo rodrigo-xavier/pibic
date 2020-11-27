@@ -38,7 +38,7 @@ class Invaders():
         matches = self.reinforcement.num_of_samples()
         
         num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(0)
-        self.simplernn.train(frames, lifes, actions, m, num_of_frames)
+        self.simplernn.train(frames, lifes, actions, 0, num_of_frames)
 
         self.simplernn.save()
     
@@ -52,6 +52,7 @@ class Invaders():
         
         num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(0)
 
+        print("Playing Fake Game")
         for i in range(num_of_frames):
             predicted = self.simplernn.model.predict(frames[i].reshape(self.simplernn.shape_of_single_frame))
             result = self.simplernn.ACTIONS[np.argmax(predicted)]
@@ -64,7 +65,7 @@ class Invaders():
         accuracy = (success*100)/num_of_frames
         loss = accumulated_loss/num_of_frames
         
-        print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss))
+        print("\nAccuracy: " + str(accuracy) + "% Loss: " + str(loss) + "\n")
         
         with open((self.PATH + 'log.csv'), 'a', newline='') as csvfile:
             fieldnames = ["Accuracy", "Loss", "epochs", "hidden_neurons", "reset_states"]

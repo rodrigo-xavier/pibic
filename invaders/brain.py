@@ -21,8 +21,15 @@ class Neural():
         pass
     
     def load(self):
-        self.model = load_model(self.PATH + self.next_folder)
-        print("Succesfully loaded network. " + self.next_folder)
+        m = []
+
+        for folder in os.listdir(self.PATH):
+            m.append(int(folder.split("_")[1]))
+        number_of_last_folder = max(m)
+        folder = "net_" + str(number_of_last_folder) + "_epochs=" + str(self.EPOCHS) + "_hidden=" + str(self.hidden_neurons) + "_reset=False"
+
+        self.model = load_model(self.PATH + folder)
+        print("Succesfully loaded network. " + folder)
 
     def save(self):
         m = []
@@ -30,13 +37,12 @@ class Neural():
         for folder in os.listdir(self.PATH):
             m.append(int(folder.split("_")[1]))
         number_of_last_folder = max(m)
-        self.next_folder = "net_" + str(number_of_last_folder + 1) + "_epochs=" + str(self.EPOCHS) + "_hidden=" + str(self.hidden_neurons) + "_reset=False"
+        folder = "net_" + str(number_of_last_folder + 1) + "_epochs=" + str(self.EPOCHS) + "_hidden=" + str(self.hidden_neurons) + "_reset=False"
 
-        os.mkdir(self.PATH + self.next_folder)
-        print("Make Folder: " + self.next_folder)
+        os.mkdir(self.PATH + folder)
 
-        self.model.save(self.PATH + self.next_folder)
-        print("Successfully saved network.")
+        self.model.save(self.PATH + folder)
+        print("Successfully saved network. " + folder)
 
 
 class SimpleRNN(Neural, NeuralData):
@@ -55,11 +61,7 @@ class SimpleRNN(Neural, NeuralData):
         self.input_shape = ((self.y_max-self.y_min),(self.x_max-self.x_min))
         self.input_neurons = (self.y_max-self.y_min)*(self.x_max-self.x_min)
         self.output_neurons = len(self.ACTIONS)
-
-        if 'hidden_neurons' in kwargs:
-            self.hidden_neurons = kwargs['hidden_neurons']
-        else:
-            self.hidden_neurons = round(math.sqrt((self.input_neurons*self.output_neurons)))
+        self.hidden_neurons = kwargs['hidden_neurons']
 
         self.VERBOSE = kwargs['verbose']
         self.EPOCHS = kwargs['epochs']
