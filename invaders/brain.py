@@ -13,6 +13,7 @@ class Neural():
 
     def __init__(self, **kwargs):
         self.PATH = str(kwargs['path'] + "model/")
+        self.EPOCHS = kwargs['epochs']
         self.model = Sequential()
         self.hidden_neurons = kwargs['hidden_neurons']
     
@@ -21,20 +22,18 @@ class Neural():
     
     def load(self):
         self.model = load_model(self.PATH + self.next_folder)
-        print("Succesfully loaded network.")
+        print("Succesfully loaded network. " + self.next_folder)
 
     def save(self):
         m = []
 
         for folder in os.listdir(self.PATH):
             m.append(int(folder.split("_")[1]))
-        if m:
-            number_of_last_folder = max(m)
-        else:
-            number_of_last_folder = 0
+        number_of_last_folder = max(m)
         self.next_folder = "net_" + str(number_of_last_folder + 1) + "_epochs=" + str(self.EPOCHS) + "_hidden=" + str(self.hidden_neurons) + "_reset=False"
 
         os.mkdir(self.PATH + self.next_folder)
+        print("Make Folder: " + self.next_folder)
 
         self.model.save(self.PATH + self.next_folder)
         print("Successfully saved network.")

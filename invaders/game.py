@@ -37,13 +37,8 @@ class Invaders():
     def load_reinforcement_and_train(self):
         matches = self.reinforcement.num_of_samples()
         
-        for m in range(matches):
-            try:
-                num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(m)
-                self.simplernn.train(frames, lifes, actions, m, num_of_frames)
-            except:
-                print("Training")
-                print("Can't load folder match_" + str(m))
+        num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(0)
+        self.simplernn.train(frames, lifes, actions, m, num_of_frames)
 
         self.simplernn.save()
     
@@ -55,26 +50,21 @@ class Invaders():
         matches = self.reinforcement.num_of_samples()
         success, accuracy, accumulated_loss, loss = 0, 0, 0, 0
         
-        for m in range(matches):
-            try:
-                num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(m)
+        num_of_frames, frames, actions, rewards, lifes = self.reinforcement.load_npz(0)
 
-                for i in range(num_of_frames):
-                    predicted = self.simplernn.model.predict(frames[i].reshape(self.simplernn.shape_of_single_frame))
-                    result = self.simplernn.ACTIONS[np.argmax(predicted)]
-                    
-                    if result==actions[i]:
-                        success += 1
+        for i in range(num_of_frames):
+            predicted = self.simplernn.model.predict(frames[i].reshape(self.simplernn.shape_of_single_frame))
+            result = self.simplernn.ACTIONS[np.argmax(predicted)]
+            
+            if result==actions[i]:
+                success += 1
 
-                    accumulated_loss = accumulated_loss + (result - actions[i])**2
+            accumulated_loss = accumulated_loss + (result - actions[i])**2
 
-                accuracy = (success*100)/num_of_frames
-                loss = accumulated_loss/num_of_frames
-                
-                print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss))
-            except:
-                print("Overfitting")
-                print("Can't load folder match_" + str(m))
+        accuracy = (success*100)/num_of_frames
+        loss = accumulated_loss/num_of_frames
+        
+        print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss))
         
         with open((self.PATH + 'log.csv'), 'a', newline='') as csvfile:
             fieldnames = ["Accuracy", "Loss", "epochs", "hidden_neurons", "reset_states"]
@@ -84,8 +74,6 @@ class Invaders():
             spamwriter.writerow(log)
 
             print('successfuly saved CSV')
-
-        del self.reinforcement
         
     def run_predict(self):
         for m in range(self.MATCHES):
