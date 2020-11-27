@@ -53,7 +53,7 @@ class Invaders():
 
         self.simplernn.load()
         matches = self.reinforcement.num_of_samples()
-        success, accuracy, accumulated_loss, loss, fail = 0, 0, 0, 0, 0
+        success, accuracy, accumulated_loss, loss = 0, 0, 0, 0
         
         for m in range(matches):
             try:
@@ -65,13 +65,13 @@ class Invaders():
                     
                     if result==actions[i]:
                         success += 1
-                        accuracy = (success*100)/num_of_frames
-                    else:
-                        fail += 1
-                        accumulated_loss = accumulated_loss + (result - actions[i])**2
-                        loss = accumulated_loss/fail
+
+                    accumulated_loss = accumulated_loss + (result - actions[i])**2
+
+                accuracy = (success*100)/num_of_frames
+                loss = accumulated_loss/num_of_frames
                 
-                print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss) + "%")
+                print("Accuracy: " + str(accuracy) + "% Loss: " + str(loss))
             except:
                 print("Overfitting")
                 print("Can't load folder match_" + str(m))
